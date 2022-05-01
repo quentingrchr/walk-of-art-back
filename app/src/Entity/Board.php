@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Config\OrientationEnum;
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BoardRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
+#[ApiResource]
 class Board
 {
     #[ORM\Id]
