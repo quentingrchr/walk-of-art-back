@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Config\OrientationEnum;
 use App\Repository\BoardRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,6 +19,9 @@ class Board
 
     #[ORM\ManyToOne(targetEntity: Gallery::class, inversedBy: 'boards')]
     private $gallery;
+
+    #[ORM\Column(type: 'string', enumType: OrientationEnum::class)]
+    private $orientation;
 
     public function getId(): ?int
     {
@@ -44,6 +48,18 @@ class Board
     public function setGallery(?Gallery $gallery): self
     {
         $this->gallery = $gallery;
+
+        return $this;
+    }
+
+    public function getOrientation(): ?string
+    {
+        return $this->orientation;
+    }
+
+    public function setOrientation(string $orientation): self
+    {
+        $this->orientation = $orientation;
 
         return $this;
     }

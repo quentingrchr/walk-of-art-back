@@ -36,13 +36,13 @@ class Gallery
     #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Board::class)]
     private $boards;
 
-    #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Reservation::class, orphanRemoval: true)]
-    private $reservations;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'galleries')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $created_user;
 
     public function __construct()
     {
         $this->boards = new ArrayCollection();
-        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -152,24 +152,6 @@ class Gallery
         return $this;
     }
 
-    /**
-     * @return Collection<int, Reservation>
-     */
-    public function getReservations(): Collection
-    {
-        return $this->reservations;
-    }
-
-    public function addReservation(Reservation $reservation): self
-    {
-        if (!$this->reservations->contains($reservation)) {
-            $this->reservations[] = $reservation;
-            $reservation->setGallery($this);
-        }
-
-        return $this;
-    }
-
     public function removeReservation(Reservation $reservation): self
     {
         if ($this->reservations->removeElement($reservation)) {
@@ -178,6 +160,18 @@ class Gallery
                 $reservation->setGallery(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedUser(): ?User
+    {
+        return $this->created_user;
+    }
+
+    public function setCreatedUser(?User $created_user): self
+    {
+        $this->created_user = $created_user;
 
         return $this;
     }

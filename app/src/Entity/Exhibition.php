@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ExhibitionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
@@ -35,6 +37,14 @@ class Exhibition
 
     #[ORM\Column(type: 'datetime_immutable')]
     private $created_at;
+
+    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
+    private $exhibitionStatuts;
+
+    public function __construct()
+    {
+        $this->exhibitionStatuts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -121,6 +131,36 @@ class Exhibition
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ExhibitionStatut>
+     */
+    public function getExhibitionStatuts(): Collection
+    {
+        return $this->exhibitionStatuts;
+    }
+
+    public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if (!$this->exhibitionStatuts->contains($exhibitionStatut)) {
+            $this->exhibitionStatuts[] = $exhibitionStatut;
+            $exhibitionStatut->setExhibition($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if ($this->exhibitionStatuts->removeElement($exhibitionStatut)) {
+            // set the owning side to null (unless already changed)
+            if ($exhibitionStatut->getExhibition() === $this) {
+                $exhibitionStatut->setExhibition(null);
+            }
+        }
 
         return $this;
     }

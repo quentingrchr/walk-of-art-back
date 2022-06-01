@@ -41,10 +41,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Exhibition::class)]
     private $exhibitions;
 
+    #[ORM\ManyToMany(targetEntity: ExhibitionStatut::class, mappedBy: 'updatedUser')]
+    private $exhibitionStatuts;
+
+    #[ORM\OneToMany(mappedBy: 'created_user', targetEntity: Gallery::class)]
+    private $galleries;
+
     public function __construct()
     {
         $this->works = new ArrayCollection();
         $this->exhibitions = new ArrayCollection();
+        $this->exhibitionStatuts = new ArrayCollection();
+        $this->galleries = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +215,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($exhibition->getUser() === $this) {
                 $exhibition->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ExhibitionStatut>
+     */
+    public function getExhibitionStatuts(): Collection
+    {
+        return $this->exhibitionStatuts;
+    }
+
+    public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if (!$this->exhibitionStatuts->contains($exhibitionStatut)) {
+            $this->exhibitionStatuts[] = $exhibitionStatut;
+            $exhibitionStatut->addUpdatedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if ($this->exhibitionStatuts->removeElement($exhibitionStatut)) {
+            $exhibitionStatut->removeUpdatedUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Gallery>
+     */
+    public function getGalleries(): Collection
+    {
+        return $this->galleries;
+    }
+
+    public function addGallery(Gallery $gallery): self
+    {
+        if (!$this->galleries->contains($gallery)) {
+            $this->galleries[] = $gallery;
+            $gallery->setCreatedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGallery(Gallery $gallery): self
+    {
+        if ($this->galleries->removeElement($gallery)) {
+            // set the owning side to null (unless already changed)
+            if ($gallery->getCreatedUser() === $this) {
+                $gallery->setCreatedUser(null);
             }
         }
 

@@ -22,9 +22,9 @@ class Reservation
     #[ORM\Column(type: 'datetime_immutable')]
     private $created_at;
 
-    #[ORM\ManyToOne(targetEntity: Gallery::class, inversedBy: 'reservations')]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private $gallery;
+    private $exhibition;
 
     public function getId(): ?int
     {
@@ -67,14 +67,14 @@ class Reservation
         return $this;
     }
 
-    public function getGallery(): ?Gallery
+    public function getExhibition(): ?Exhibition
     {
-        return $this->gallery;
+        return $this->exhibition;
     }
 
-    public function setGallery(?Gallery $gallery): self
+    public function setExhibition(?Exhibition $exhibition): self
     {
-        $this->gallery = $gallery;
+        $this->exhibition = $exhibition;
 
         return $this;
     }
