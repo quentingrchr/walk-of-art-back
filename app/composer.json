@@ -41,9 +41,7 @@
         "symfony/webpack-encore-bundle": "^1.13",
         "symfony/yaml": "6.0.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
-    },
-    "require-dev": {
+        "twig/twig": "^2.12|^3.0",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "knplabs/knp-paginator-bundle": "^5.8",
         "knplabs/knp-time-bundle": "^1.17",
@@ -54,6 +52,8 @@
         "symfony/stopwatch": "6.0.*",
         "symfony/web-profiler-bundle": "6.0.*",
         "zenstruck/foundry": "^1.16"
+    },
+    "require-dev": {
     },
     "config": {
         "allow-plugins": {
@@ -92,7 +92,6 @@
             "@auto-scripts"
         ],
         "compile": [
-            "php bin/console m:migrations --dev",
             "php bin/console doctrine:migrations:migrate",
             "php bin/console lexik:jwt:generate-keypair"
         ]
