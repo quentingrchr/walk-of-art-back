@@ -41,7 +41,9 @@
         "symfony/webpack-encore-bundle": "^1.13",
         "symfony/yaml": "6.0.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0"
+    },
+    "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "knplabs/knp-paginator-bundle": "^5.8",
         "knplabs/knp-time-bundle": "^1.17",
@@ -52,8 +54,6 @@
         "symfony/stopwatch": "6.0.*",
         "symfony/web-profiler-bundle": "6.0.*",
         "zenstruck/foundry": "^1.16"
-    },
-    "require-dev": {
     },
     "config": {
         "allow-plugins": {
