@@ -20,5 +20,8 @@
     "dependencies": {
         "node-sass": "^7.0.1",
         "sass-loader": "^12.6.0"
+    },
+    "engines": {
+        "yarn": "1.x"
     }
 }
