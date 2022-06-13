@@ -14,8 +14,7 @@
         "dev-server": "encore dev-server",
         "dev": "encore dev",
         "watch": "encore dev --watch",
-        "build": "encore production --progress",
-        "heroku-postbuild": "webpack --config ./resources/webpack/webpack.config.js"
+        "build": "encore production --progress"
     },
     "dependencies": {
         "node-sass": "^7.0.1",
