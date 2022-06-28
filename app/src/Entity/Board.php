@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Config\OrientationEnum;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BoardRepository;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
@@ -12,8 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 class Board
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private $id;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -25,7 +27,7 @@ class Board
     #[ORM\Column(type: 'string', enumType: OrientationEnum::class)]
     private $orientation;
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
