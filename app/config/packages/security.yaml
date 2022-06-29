@@ -35,6 +35,11 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
+        register:
+            pattern: api_register
+            stateless: true
+#            provider: app_user_provider
+
         api:
             pattern: ^/api/
             stateless: true
@@ -51,7 +56,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
-        - { path: ^/api/(login|token_refresh), roles: PUBLIC_ACCESS }
+        - { path: ^/api/(login|token_refresh|register), roles: PUBLIC_ACCESS }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

@@ -34,7 +34,7 @@ class Gallery
     #[ORM\Column(type: 'integer', nullable: true)]
     private $max_days;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
     #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Board::class)]
@@ -47,6 +47,7 @@ class Gallery
     public function __construct()
     {
         $this->boards = new ArrayCollection();
+        $this->setCreatedAt(new \DateTime('now'));
     }
 
     public function getId(): ?Uuid
@@ -114,12 +115,12 @@ class Gallery
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 

@@ -23,12 +23,17 @@ class Reservation
     #[ORM\Column(type: 'integer')]
     private $duration;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
     #[ORM\ManyToOne(targetEntity: Exhibition::class)]
     #[ORM\JoinColumn(nullable: false)]
     private $exhibition;
+
+    public function __construct()
+    {
+        $this->setCreatedAt(new \DateTime('now'));
+    }
 
     public function getId(): ?Uuid
     {
@@ -59,12 +64,12 @@ class Reservation
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 

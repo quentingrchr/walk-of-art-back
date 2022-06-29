@@ -35,7 +35,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $lastname;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Work::class, orphanRemoval: true)]
@@ -56,6 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->exhibitions = new ArrayCollection();
         $this->exhibitionStatuts = new ArrayCollection();
         $this->galleries = new ArrayCollection();
+        $this->setCreatedAt(new \DateTime('now'));
     }
 
     public function getId(): ?Uuid
@@ -152,12 +153,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 

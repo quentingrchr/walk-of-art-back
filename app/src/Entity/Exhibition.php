@@ -39,7 +39,7 @@ class Exhibition
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
     #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
@@ -48,6 +48,7 @@ class Exhibition
     public function __construct()
     {
         $this->exhibitionStatuts = new ArrayCollection();
+        $this->setCreatedAt(new \DateTime('now'));
     }
 
     public function getId(): ?Uuid
@@ -79,12 +80,12 @@ class Exhibition
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 
