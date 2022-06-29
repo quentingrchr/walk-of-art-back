@@ -3,12 +3,41 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\ReservationController;
 use App\Repository\ReservationRepository;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+            "security" => "is_granted('ROLE_ARTIST')",
+            "security_message" => "Seulement les artistes peuvent créer une réservation.",
+        ],
+    ],
+    itemOperations: [
+        'get' => [
+            'method' => 'GET',
+            'path' => '/reservation/{id}',
+            'name' => 'app_api_reservation',
+            'controller' => ReservationController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer la réservation & l'exhibition de l'utilisateur"
+            ]
+        ],
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une réservation.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent supprimer une réservation.",
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
+)]
 class Reservation
 {
     #[ORM\Id]

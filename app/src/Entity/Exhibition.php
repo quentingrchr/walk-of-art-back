@@ -10,7 +10,45 @@ use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+            "security" => "is_granted('ROLE_ARTIST')",
+            "security_message" => "Seulement les artistes peuvent ajouter une exposition.",
+        ],
+    ],
+    itemOperations: [
+        'getAll' => [
+            'method' => 'GET',
+            'path' => '/exhibitions',
+            'name' => 'app_api_exhibition',
+            'controller' => ExhibitionController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer toutes les expositions de l'utilisateur"
+            ]
+        ],
+        'get' => [
+            'method' => 'GET',
+            'path' => '/exhibition/{id}',
+            'name' => 'app_api_exhibition',
+            'controller' => ExhibitionController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer l'exposition de l'utilisateur"
+            ]
+        ],
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une exposition.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer une exposition.",
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
+)]
 class Exhibition
 {
     #[ORM\Id]

@@ -10,7 +10,29 @@ use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: WorkRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+            "security" => "is_granted('ROLE_ARTIST')",
+            "security_message" => "Seulement les artistes peuvent ajouter un travail.",
+        ],
+    ],
+    itemOperations: [
+        "get" => [
+            "security" => "is_granted('ROLE_VISITOR')",
+            "security_message" => "Tous le monde peut voir les travaux apart les visiteurs.",
+        ],
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier un travail.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent supprimer un travail.",
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
+)]
 class Work
 {
     #[ORM\Id]

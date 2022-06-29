@@ -10,7 +10,29 @@ use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GalleryRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+            "security" => "is_granted('ROLE_ADMIN')",
+            "security_message" => "Seulement les administrateurs peuvent ajouter une galerie.",
+        ],
+    ],
+    itemOperations: [
+        "get" => [
+            "security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')",
+            "security_message" => "Tous le monde peut voir une galerie apart les visiteurs.",
+        ],
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une galerie.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer une galerie.",
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
+)]
 class Gallery
 {
     #[ORM\Id]

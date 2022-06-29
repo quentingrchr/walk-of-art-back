@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\UserController;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -13,7 +15,41 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+<<<<<<< HEAD
 class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
+=======
+#[ApiResource(
+    itemOperations: [
+        'get' => [
+            'method' => 'GET',
+            'name' => 'app_api_artists',
+            'controller' => UserController::class,
+            'openapi_context' => [
+                'summary' => "Récupérer tout les artistes | Only Moderators & Admins"
+            ]
+        ],
+        'update_profile' => [
+            'method' => 'POST',
+            'path' => '/update-profile',
+            'controller' => UserController::class,
+            'read' => false,
+        ],
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier un utilisateur.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer un utilisateur.",
+            'openapi_context' => [
+                'summary' => "Supprimer les utilisateurs | Only Admins"
+            ]
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
+)]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
+>>>>>>> Securisation des routes
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -50,6 +86,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
 
     #[ORM\OneToMany(mappedBy: 'created_user', targetEntity: Gallery::class)]
     private $galleries;
+
+    private $username;
 
     public function __construct()
     {
