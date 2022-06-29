@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\WorkController;
 use App\Controller\PostWorkFilesController;
 use App\Controller\WorkController;
 use App\Repository\WorkRepository;
@@ -254,6 +255,28 @@ class Work implements UserOwnedInterface
         }
 
         return $this;
+    }
+
+    public function arrayOfWorkFile()
+    {
+        $arrayOfWorkFiles = [];
+        foreach($this->getWorkFiles() as $workFile) {
+            $arrayOfWorkFiles[] = $workFile->getId();
+        }
+
+        return $arrayOfWorkFiles;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'title'=> $this->getTitle(),
+            'description'=> $this->getDescription(),
+            'createdAt'=> $this->getCreatedAt(),
+            'userId'=> $this->getUser()->getId(),
+            'workFilesIds'=> $this->arrayOfWorkFile(),
+        );
     }
 
     public function arrayOfWorkFile()

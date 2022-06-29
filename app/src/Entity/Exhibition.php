@@ -21,26 +21,21 @@ use Doctrine\ORM\Mapping as ORM;
             'controller' => ExhibitionController::class,
             'read' => false,
             'openapi_context' => [
-                'summary' => "Récupérer toutes les expositions de l'utilisateur connecté"
-            ]
-        ],
-        'getOne' => [
-            'method' => 'GET',
-            'path' => '/api/exposition/{id}',
-            'controller' => ExhibitionController::class,
-            'read' => false,
-            'openapi_context' => [
-                'summary' => "Récupérer l'exposition de l'utilisateur connecté"
+                'summary' => "Récupérer l'exposition de l'utilisateur connecté",
             ],
             'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']],
         ],
+        "post" => [
+            "security" => "is_granted('ROLE_ARTIST')",
+            "security_message" => "Seulement les artistes peuvent ajouter une exposition.",
+        ],
+    ],
+    itemOperations: [
         'post' => [
                 "security" => "is_granted('ROLE_ARTIST')",
                 "security_message" => "Seulement les artistes peuvent ajouter une exposition.",
 //            'denormalization_context' => ['groups' => ['write:Exhibition']]
         ],
-    ],
-    itemOperations: [
         'get' => [
             'method' => 'GET',
             'path' => '/exhibition/{id}',
@@ -311,6 +306,20 @@ class Exhibition implements UserOwnedInterface
 //
 //        return $this;
 //    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'title'=> $this->getTitle(),
+            'description'=> $this->getDescription(),
+            'reaction'=> $this->getReaction(),
+            'revision'=> $this->getRevision(),
+            'workId'=> $this->getWork()->getId(),
+            'userId'=> $this->getUser()->getId(),
+            'createdAt'=> $this->getCreatedAt(),
+        );
+    }
 
     public function jsonSerialize()
     {
