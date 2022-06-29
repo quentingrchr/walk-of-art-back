@@ -3,58 +3,72 @@
 
 namespace App\Controller;
 
-
+use App\Common\JwtFindUserDecoder;
+use App\Common\ResponseRenderer;
 use App\Entity\Reservation;
 use App\Repository\ExhibitionRepository;
 use App\Repository\ReservationRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 #[AsController]
 class ReservationController extends AbstractController
 {
-    private UserRepository $userRepository;
+    private JwtFindUserDecoder $user;
     private ReservationRepository $reservationRepository;
     private ExhibitionRepository $exhibitionRepository;
     private EntityManagerInterface $entityManager;
-    private JWTTokenManagerInterface $jwtManager;
-    private TokenStorageInterface $tokenStorageInterface;
+    private ResponseRenderer $response;
 
-    public function __construct(UserRepository $userRepository, ReservationRepository $reservationRepository, ExhibitionRepository $exhibitionRepository, EntityManagerInterface $entityManager
-        , JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorageInterface)
+    public function __construct(JwtFindUserDecoder $user, ReservationRepository $reservationRepository, ExhibitionRepository $exhibitionRepository, EntityManagerInterface $entityManager, ResponseRenderer $response)
     {
-        $this->userRepository = $userRepository;
+        $this->user = $user;
         $this->reservationRepository = $reservationRepository;
         $this->exhibitionRepository = $exhibitionRepository;
         $this->entityManager = $entityManager;
-        $this->jwtManager = $jwtManager;
-        $this->tokenStorageInterface = $tokenStorageInterface;
+        $this->response = $response;
     }
 
-    #[Route(path: '/reservation/{id}', name: 'app_api_reservation')]
-    public function reservation(Reservation $reservation): array|string
+    #[Route(path: '/api/reservations', name: 'app_api_reservations')]
+    public function reservations(): Response|string
     {
-        $data =  $this->jwtManager->decode($this->tokenStorageInterface->getToken());
+        $exhibitions = $this->exhibitionRepository->findBy(array('user' => $this->user->findUser()));
 
-        if($data != null) {
-            $user = $this->userRepository->findBy(['email' => $data["username"]])[0];
+        $reservations = $this->reservationRepository->findBy(array('exhibition' => $exhibitions));
+
+        $arrayOfReservations = [];
+
+        foreach($reservations as $reservation) {
+
+            $arrayOfWorkFiles = [];
+
+            foreach ($reservation->getExhibition()->getWork()->getWorkFiles() as $workFile) {
+                $arrayOfWorkFiles[] = $workFile->jsonSerialize();
+            }
+
+            $arrayOfReservations[] = [
+                'reservations' => $reservation->jsonSerialize(),
+                'expositions' => $reservation->getExhibition()->jsonSerialize(),
+                'travaux' => $reservation->getExhibition()->getWork()->jsonSerialize(),
+                'fichiers' => $arrayOfWorkFiles
+            ];
+        }
+
+        return $this->response->response($arrayOfReservations);
+    }
+
+    #[Route(path: '/api/reservation/{id}', name: 'app_api_reservation')]
+    public function reservation(Reservation $reservation): Response|string
+    {
             $reservation = $this->reservationRepository->find($reservation);
 
-            if($user->getId() == $reservation->getExhibition()->getUser()->getId()) {
-                return [
-                    'reservation' => $reservation,
-                    'exhibition' => $reservation->getExhibition()
-                ];
+            if($this->user->findUser()->getId() == $reservation->getExhibition()->getUser()->getId()) {
+                return $this->response->response(['reservations' => $reservation->jsonSerialize(), 'expositions' => $reservation->getExhibition()->jsonSerialize()]);
             }
 
             return "Ce n'est pas la réservation de l'utilisateur connecté.";
-        }
-        return "Aucun utilisateur n'est connecté.";
     }
 }

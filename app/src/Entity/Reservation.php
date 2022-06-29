@@ -25,8 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
     itemOperations: [
         'get' => [
             'method' => 'GET',
-            'path' => '/reservation/{id}',
-            'name' => 'app_api_reservation',
+            'path' => '/api/reservation/{id}',
             'controller' => ReservationController::class,
             'read' => false,
             'openapi_context' => [
@@ -130,5 +129,16 @@ class Reservation
         $this->exhibition = $exhibition;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'dateStart'=> $this->getDateStart(),
+            'duration'=> $this->getDuration(),
+            'createdAt'=> $this->getCreatedAt(),
+            'exhibitionId'=> $this->getExhibition()->getId(),
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\PostWorkFilesController;
+use App\Controller\WorkController;
 use App\Repository\WorkRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,12 +24,18 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     itemOperations: [
         'get' => [
+            'method' => 'GET',
+            'controller' => WorkController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer les travaux de l'utilisateur connecté"
+            ],
             "security" => "is_granted('ROLE_VISITOR')",
             "security_message" => "Tous le monde peut voir les travaux apart les visiteurs.",
             'normalization_context' => [
                 'groups' => ['read:Work:collection','read:Work:item','read:User','read:Exhibition:collection'],
                 'enable_max_depth' => true
-            ]
+            ],
         ],
         'post_files' => [
             'method' => 'POST',
@@ -247,5 +254,27 @@ class Work implements UserOwnedInterface
         }
 
         return $this;
+    }
+
+    public function arrayOfWorkFile()
+    {
+        $arrayOfWorkFiles = [];
+        foreach($this->getWorkFiles() as $workFile) {
+            $arrayOfWorkFiles[] = $workFile->getId();
+        }
+
+        return $arrayOfWorkFiles;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'title'=> $this->getTitle(),
+            'description'=> $this->getDescription(),
+            'createdAt'=> $this->getCreatedAt(),
+            'userId'=> $this->getUser()->getId(),
+            'workFilesIds'=> $this->arrayOfWorkFile(),
+        );
     }
 }

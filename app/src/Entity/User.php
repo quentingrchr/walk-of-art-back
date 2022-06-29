@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
     itemOperations: [
     'get' => [
             'method' => 'GET',
-            'name' => 'app_api_artists',
+            'path' => '/artistes/',
             'controller' => UserController::class,
             'openapi_context' => [
                 'summary' => "Récupérer tout les artistes | Only Moderators & Admins"
@@ -325,5 +325,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         $user->setEmail($payload['email']);
         $user->setRoles($payload['roles']);
         return $user;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'email'=> $this->getEmail(),
+            'firstName'=> $this->getFirstname(),
+            'lastName'=> $this->getLastname(),
+        );
     }
 }

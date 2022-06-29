@@ -132,4 +132,14 @@ class WorkFiles
 
         return $this;
     }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'pathFile'=> $this->getPathFile(),
+            'main'=> $this->getMain(),
+            'workId'=> $this->getWork()->getId(),
+        );
+    }
 }

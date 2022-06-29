@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\ExhibitionController;
 use App\Repository\ExhibitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,12 +17,20 @@ use Doctrine\ORM\Mapping as ORM;
     collectionOperations: [
         'getAll' => [
             'method' => 'GET',
-            'path' => '/exhibitions',
-            'name' => 'app_api_exhibition',
+            'path' => '/api/expositions',
             'controller' => ExhibitionController::class,
             'read' => false,
             'openapi_context' => [
-                'summary' => "Récupérer toutes les expositions de l'utilisateur"
+                'summary' => "Récupérer toutes les expositions de l'utilisateur connecté"
+            ]
+        ],
+        'getOne' => [
+            'method' => 'GET',
+            'path' => '/api/exposition/{id}',
+            'controller' => ExhibitionController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer l'exposition de l'utilisateur connecté"
             ],
             'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']],
         ],
@@ -53,6 +62,7 @@ use Doctrine\ORM\Mapping as ORM;
             "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer une exposition.",
         ],
     ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
     denormalizationContext: ['groups' => ['write:Exhibition']],
     normalizationContext: ['groups' => ['read:Exhibition:collection']],
 )]
@@ -301,4 +311,18 @@ class Exhibition implements UserOwnedInterface
 //
 //        return $this;
 //    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->getId(),
+            'title'=> $this->getTitle(),
+            'description'=> $this->getDescription(),
+            'reaction'=> $this->getReaction(),
+            'revision'=> $this->getRevision(),
+            'workId'=> $this->getWork()->getId(),
+            'userId'=> $this->getUser()->getId(),
+            'createdAt'=> $this->getCreatedAt(),
+        );
+    }
 }

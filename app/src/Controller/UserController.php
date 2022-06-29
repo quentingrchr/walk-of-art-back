@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Common\NixillaJwtEncoder;
+use App\Common\ResponseRenderer;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,16 +21,19 @@ class UserController extends AbstractController {
     private EntityManagerInterface $entityManager;
     private JWTTokenManagerInterface $jwtManager;
     private TokenStorageInterface $tokenStorageInterface;
+    private ResponseRenderer $response;
 
-    public function __construct(UserRepository $userRepository, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorageInterface)
+    public function __construct(UserRepository $userRepository, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorageInterface,
+                                ResponseRenderer $response)
     {
         $this->userRepository = $userRepository;
         $this->entityManager = $entityManager;
         $this->jwtManager = $jwtManager;
         $this->tokenStorageInterface = $tokenStorageInterface;
+        $this->response = $response;
     }
 
-    #[Route(path: '/api/artists', name: 'app_api_artists')]
+    #[Route(path: '/api/artistes', name: 'app_api_artists')]
     public function artists(): array|string
     {
         $data =  $this->jwtManager->decode($this->tokenStorageInterface->getToken());
@@ -39,9 +42,15 @@ class UserController extends AbstractController {
             $user = $this->userRepository->findBy(['email' => $data['username']])[0];
 
             if(in_array('ROLE_MODERATOR', $user->getRoles()) || in_array('ROLE_ADMIN', $user->getRoles())) {
-                dump($this->userRepository->findByRoles('ROLE_ARTIST'));
-                die;
-                return $this->userRepository->findByRoles('ROLE_ARTIST');
+                $users = $this->userRepository->findByRoles('ROLE_ARTIST');
+
+                $arrayOfUsers = [];
+
+                foreach($users as $user) {
+                    $arrayOfUsers[] = $user->jsonSerialize();
+                }
+
+                return $this->response->response($arrayOfUsers);
             }
             return "L'utilisateur n'est pas un modérateur.";
         }
