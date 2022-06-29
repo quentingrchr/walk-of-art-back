@@ -2377,6 +2377,66 @@
             "time": "2021-12-01T09:34:27+00:00"
         },
         {
+            "name": "nixilla/php-jwt",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nixilla/php-jwt.git",
+                "reference": "aa6661420e1fc01d288a5151aeb5a23c37ff370f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nixilla/php-jwt/zipball/aa6661420e1fc01d288a5151aeb5a23c37ff370f",
+                "reference": "aa6661420e1fc01d288a5151aeb5a23c37ff370f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*@dev"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "JWT": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Neuman Vong",
+                    "email": "neuman+pear@twilio.com"
+                },
+                {
+                    "name": "Anant Narayanan",
+                    "email": "anant@php.net"
+                },
+                {
+                    "name": "Jody Mickey",
+                    "email": "jody.mickey@gmail.com"
+                },
+                {
+                    "name": "Janusz Slota",
+                    "email": "janusz.slota@nixilla.com",
+                    "homepage": "http://www.nixilla.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Json Web Token for PHP",
+            "keywords": [
+                "jwt"
+            ],
+            "support": {
+                "source": "https://github.com/nixilla/php-jwt/tree/master"
+            },
+            "time": "2013-05-21T13:55:14+00:00"
+        },
+        {
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {
@@ -9309,7 +9369,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "nixilla/php-jwt": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

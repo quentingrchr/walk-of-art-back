@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\UserController;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,7 +17,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
     collectionOperations: [],
-    itemOperations: ['get'],
+    itemOperations: [
+    'get' => [
+            'method' => 'GET',
+            'name' => 'app_api_artists',
+            'controller' => UserController::class,
+            'openapi_context' => [
+                'summary' => "Récupérer tout les artistes | Only Moderators & Admins"
+            ]
+        ],
+        'update_profile' => [
+            'method' => 'POST',
+            'path' => '/update-profile',
+            'controller' => UserController::class,
+            'read' => false,
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
     normalizationContext: ['groups' => ['read:User']],
 )]
 #[ORM\Table(name: '`user`')]

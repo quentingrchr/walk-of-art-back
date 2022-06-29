@@ -9,7 +9,29 @@ use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        "post" => [
+            "security" => "is_granted('ROLE_ADMIN')",
+            "security_message" => "Seulement les administrateurs peuvent ajouter un tableau.",
+        ],
+    ],
+    itemOperations: [
+        "get" => [
+            "security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')",
+            "security_message" => "Tous le monde peut voir un tableau apart les visiteurs.",
+        ],
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier un tableau.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer un tableau.",
+        ],
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
+)]
 class Board
 {
     #[ORM\Id]

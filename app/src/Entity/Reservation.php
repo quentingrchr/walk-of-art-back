@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\ReservationController;
+use App\Controller\ReservationController;
 use App\Repository\ReservationRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
@@ -14,16 +16,32 @@ use Doctrine\ORM\Mapping as ORM;
     collectionOperations: [
         'get',
         'post' => [
+            "security" => "is_granted('ROLE_ARTIST')",
+            "security_message" => "Seulement les artistes peuvent créer une réservation.",
             'denormalization_context' => ['groups' => ['write:Reservation','write:Exhibition']],
             'normalization_context' => ['groups' => ['read:Reservation:collection','read:Reservation:item','read:User']]
         ],
     ],
     itemOperations: [
         'get' => [
+            'method' => 'GET',
+            'path' => '/reservation/{id}',
+            'name' => 'app_api_reservation',
+            'controller' => ReservationController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer la réservation & l'exhibition de l'utilisateur"
+            ],
             'normalization_context' => ['groups' => ['read:Reservation:collection','read:Reservation:item','read:User']]
         ],
-        'put',
-        'delete'
+        "put" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une réservation.",
+        ],
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent supprimer une réservation.",
+        ],
     ],
     denormalizationContext: ['groups' => ['write:Reservation']],
     normalizationContext: ['groups' => ['read:Reservation:collection']],

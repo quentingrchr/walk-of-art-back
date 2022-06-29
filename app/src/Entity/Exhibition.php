@@ -14,20 +14,44 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
 #[ApiResource(
     collectionOperations: [
-        'get',
-        'post' =>
-            [
+        'getAll' => [
+            'method' => 'GET',
+            'path' => '/exhibitions',
+            'name' => 'app_api_exhibition',
+            'controller' => ExhibitionController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer toutes les expositions de l'utilisateur"
+            ],
+            'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']],
+        ],
+        'post' => [
+                "security" => "is_granted('ROLE_ARTIST')",
+                "security_message" => "Seulement les artistes peuvent ajouter une exposition.",
 //            'denormalization_context' => ['groups' => ['write:Exhibition']]
         ],
     ],
     itemOperations: [
         'get' => [
+            'method' => 'GET',
+            'path' => '/exhibition/{id}',
+            'name' => 'app_api_exhibition',
+            'controller' => ExhibitionController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Récupérer l'exposition de l'utilisateur"
+            ],
             'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']]
         ],
         'put' => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une exposition.",
             'denormalization_context' => ['groups' => ['write:Exhibition']]
         ],
-        'delete'
+        "delete" => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
+            "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer une exposition.",
+        ],
     ],
     denormalizationContext: ['groups' => ['write:Exhibition']],
     normalizationContext: ['groups' => ['read:Exhibition:collection']],

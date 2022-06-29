@@ -16,10 +16,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(
     collectionOperations: [
         'get',
-        'post',
+        "post" => [
+            "security" => "is_granted('ROLE_ARTIST')",
+            "security_message" => "Seulement les artistes peuvent ajouter un travail.",
+        ],
     ],
     itemOperations: [
         'get' => [
+            "security" => "is_granted('ROLE_VISITOR')",
+            "security_message" => "Tous le monde peut voir les travaux apart les visiteurs.",
             'normalization_context' => [
                 'groups' => ['read:Work:collection','read:Work:item','read:User','read:Exhibition:collection'],
                 'enable_max_depth' => true
@@ -56,11 +61,17 @@ use Doctrine\ORM\Mapping as ORM;
             ]
         ],
         'put' => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier un travail.",
             'denormalization_context' => ['groups' => ['write:Work']],
 //            'normalization_context' => ['groups' => ['read:Work:collection','read:Work:item','read:User']],
         ],
-        'delete'
+        'delete' => [
+            "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
+            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent supprimer un travail.",
+        ],
     ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
     denormalizationContext: ['groups' => ['write:Work']],
     normalizationContext: ['groups' => ['read:Work:collection']],
 )]
@@ -105,7 +116,7 @@ class Work implements UserOwnedInterface
     #[Groups(['read:Work:item'])]
     #[MaxDepth(1)]
     private $exhibitions;
-    
+
     public function __construct()
     {
         $this->workFiles = new ArrayCollection();
@@ -141,7 +152,7 @@ class Work implements UserOwnedInterface
 
         return $this;
     }
-    
+
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
@@ -165,7 +176,7 @@ class Work implements UserOwnedInterface
 
         return $this;
     }
-    
+
     public function getMainFile(): ?WorkFiles
     {
         return $this->mainFile;

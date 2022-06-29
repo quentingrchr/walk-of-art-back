@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -58,6 +59,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->_em->persist($user);
         $this->_em->flush();
+    }
+
+    /**
+     * @param $role
+     * @return QueryBuilder
+     */
+    public function findByRoles($role): QueryBuilder
+    {
+            $query = $this
+                ->createQueryBuilder('u')
+                ->andWhere('u.roles LIKE :val')
+                ->setParameter('val', '%'.'ROLE_ARTIST'.'%');
+
+            return $query->getQuery()->getResult();
     }
 
     // /**
