@@ -38,6 +38,7 @@ security:
         register:
             pattern: api_register
             stateless: true
+            provider: app_user_provider
 
         api:
             pattern: ^/api/
