@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20220628131627 extends AbstractMigration
+final class Version20220629231043 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -24,7 +24,6 @@ final class Version20220628131627 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_58562B474E7AF8F ON board (gallery_id)');
         $this->addSql('COMMENT ON COLUMN board.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN board.gallery_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN board.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE exhibition (id UUID NOT NULL, revision_id UUID DEFAULT NULL, work_id UUID NOT NULL, user_id UUID NOT NULL, title VARCHAR(255) NOT NULL, description TEXT DEFAULT NULL, reaction BOOLEAN NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_B83533891DFA7C8F ON exhibition (revision_id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_B8353389BB3453DB ON exhibition (work_id)');
@@ -33,12 +32,10 @@ final class Version20220628131627 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN exhibition.revision_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN exhibition.work_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN exhibition.user_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN exhibition.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE exhibition_statut (id UUID NOT NULL, exhibition_id UUID NOT NULL, status VARCHAR(255) NOT NULL, decription VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_32309C9D2A7D4494 ON exhibition_statut (exhibition_id)');
         $this->addSql('COMMENT ON COLUMN exhibition_statut.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN exhibition_statut.exhibition_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN exhibition_statut.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE exhibition_statut_user (exhibition_statut_id UUID NOT NULL, user_id UUID NOT NULL, PRIMARY KEY(exhibition_statut_id, user_id))');
         $this->addSql('CREATE INDEX IDX_C7ADAA0E68A71B1B ON exhibition_statut_user (exhibition_statut_id)');
         $this->addSql('CREATE INDEX IDX_C7ADAA0EA76ED395 ON exhibition_statut_user (user_id)');
@@ -48,23 +45,19 @@ final class Version20220628131627 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_472B783AE104C1D3 ON gallery (created_user_id)');
         $this->addSql('COMMENT ON COLUMN gallery.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN gallery.created_user_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN gallery.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE "refresh_tokens" (id INT NOT NULL, refresh_token VARCHAR(128) NOT NULL, username VARCHAR(255) NOT NULL, valid TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_9BACE7E1C74F2195 ON "refresh_tokens" (refresh_token)');
         $this->addSql('CREATE TABLE reservation (id UUID NOT NULL, exhibition_id UUID NOT NULL, date_start DATE NOT NULL, duration INT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_42C849552A7D4494 ON reservation (exhibition_id)');
         $this->addSql('COMMENT ON COLUMN reservation.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN reservation.exhibition_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN reservation.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE "user" (id UUID NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, firstname VARCHAR(255) DEFAULT NULL, lastname VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649E7927C74 ON "user" (email)');
         $this->addSql('COMMENT ON COLUMN "user".id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN "user".created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE work (id UUID NOT NULL, user_id UUID NOT NULL, title VARCHAR(255) NOT NULL, description TEXT DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_534E6880A76ED395 ON work (user_id)');
         $this->addSql('COMMENT ON COLUMN work.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN work.user_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN work.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE work_files (id UUID NOT NULL, work_id UUID NOT NULL, path_file VARCHAR(255) NOT NULL, main BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_2ECE3B76BB3453DB ON work_files (work_id)');
         $this->addSql('COMMENT ON COLUMN work_files.id IS \'(DC2Type:uuid)\'');
