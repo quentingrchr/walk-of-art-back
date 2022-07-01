@@ -20,6 +20,7 @@ final class Version20220629231043 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE SEQUENCE "refresh_tokens_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE TABLE board (id UUID NOT NULL, gallery_id UUID DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, orientation VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_58562B474E7AF8F ON board (gallery_id)');
         $this->addSql('COMMENT ON COLUMN board.id IS \'(DC2Type:uuid)\'');
@@ -90,6 +91,7 @@ final class Version20220629231043 extends AbstractMigration
         $this->addSql('ALTER TABLE work DROP CONSTRAINT FK_534E6880A76ED395');
         $this->addSql('ALTER TABLE exhibition DROP CONSTRAINT FK_B8353389BB3453DB');
         $this->addSql('ALTER TABLE work_files DROP CONSTRAINT FK_2ECE3B76BB3453DB');
+        $this->addSql('DROP SEQUENCE "refresh_tokens_id_seq" CASCADE');
         $this->addSql('DROP TABLE board');
         $this->addSql('DROP TABLE exhibition');
         $this->addSql('DROP TABLE exhibition_statut');
