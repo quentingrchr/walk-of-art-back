@@ -3,52 +3,80 @@
 
 namespace App\Controller;
 
-use App\Common\JwtFindUserDecoder;
-use App\Common\ResponseRenderer;
 use App\Entity\Exhibition;
 use App\Repository\ExhibitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Serializer\SerializerInterface;
 
+#[Route(path: '/api')]
 class ExhibitionController extends AbstractController
 {
-    private JwtFindUserDecoder $user;
     private ExhibitionRepository $exhibitionRepository;
     private EntityManagerInterface $entityManager;
-    private ResponseRenderer $response;
+    private Security $security;
+    private SerializerInterface $serializer;
 
-    public function __construct(JwtFindUserDecoder $user, ExhibitionRepository $exhibitionRepository, EntityManagerInterface $entityManager,
-                                ResponseRenderer $response)
+    public function __construct(ExhibitionRepository $exhibitionRepository, EntityManagerInterface $entityManager,
+                                Security $security, SerializerInterface $serializer)
     {
-        $this->user = $user;
         $this->exhibitionRepository = $exhibitionRepository;
         $this->entityManager = $entityManager;
-        $this->response = $response;
+        $this->security = $security;
+        $this->serializer = $serializer;
     }
 
-    #[Route(path: '/api/expositions/', name: 'app_api_expositions')]
-    public function expositions(): Response|string
+    #[Route(path: '/exhibitions/', name: 'app_api_exhibitions')]
+    public function expositions(): JsonResponse
     {
-        $exhibitions = $this->exhibitionRepository->findBy(array('user' => $this->user->findUser()));
+        if (is_null($this->security->getUser())) {
+            return new JsonResponse([
+                'message' => 'User not logged in'
+            ], status: Response::HTTP_CONFLICT);
+        }
+
+        $exhibitions = $this->exhibitionRepository->findBy(array('user' => $this->security->getUser()));
 
         $arrayOfExhibitions = [];
 
-        foreach($exhibitions as $exhibition) {
-            $arrayOfExhibitions[] = $exhibition->jsonSerialize();
+        if (is_null($arrayOfExhibitions)) {
+            return new JsonResponse([
+                'message' => 'This user don\'t have exhibitions'
+            ], status: Response::HTTP_CONFLICT);
         }
 
-        return $this->response->response($arrayOfExhibitions);
+        foreach($exhibitions as $exhibition) {
+            $arrayOfExhibitions[] = $exhibition;
+        }
+
+        return new JsonResponse(
+            json_decode($this->serializer->serialize($arrayOfExhibitions, 'json')),
+            status: Response::HTTP_CREATED
+        );
     }
 
-    #[Route(path: '/api/exposition/{id}', name: 'app_api_exposition')]
-    public function exposition(Exhibition $exhibition): Response|string
+    #[Route(path: '/exhibition/{id}', name: 'app_api_exhibition')]
+    public function exposition(Exhibition $exhibition): JsonResponse
     {
-        if($this->user->findUser()->getId() == $exhibition->getUser()->getId()) {
-            return $this->response->response($exhibition->jsonSerialize());
+        if (is_null($this->security->getUser())) {
+            return new JsonResponse([
+                'message' => 'User not logged in'
+            ], status: Response::HTTP_CONFLICT);
         }
 
-        return "Ce n'est pas la réservation de l'utilisateur connecté.";
+        if ($this->security->getUser()->getUserIdentifier() !== $exhibition->getUser()->getUserIdentifier()) {
+            return new JsonResponse([
+                'message' => 'It is not the exhibition of the current user.'
+            ], status: Response::HTTP_CONFLICT);
+        }
+
+        return new JsonResponse(
+            json_decode($this->serializer->serialize($exhibition, 'json')),
+            status: Response::HTTP_CREATED
+        );
     }
 }

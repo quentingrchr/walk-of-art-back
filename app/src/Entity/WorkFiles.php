@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\WorkController;
 use App\Controller\PostWorkFilesController;
 use App\Repository\WorkFilesRepository;
 use Symfony\Component\HttpFoundation\File\File;
@@ -19,23 +20,29 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     collectionOperations: [
         "post" => [
             "security" => "is_granted('ROLE_ARTIST')",
-            "security_message" => "Seulement les artistes peuvent ajouter un fichier.",
+            "security_message" => "Only artists.",
         ],
     ],
     itemOperations: [
-        "get" => [
-            "security" => "is_granted('ROLE_VISITOR')",
-            "security_message" => "Tous le monde peut voir les fichiers apart les visiteurs.",
+        'get' => [
+            'method' => 'GET',
+            'path' => '/api/work-file/{id}',
+            'controller' => WorkController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Get a work file of a current user"
+            ]
         ],
         "put" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
-            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier un fichier.",
+            "security_post_denormalize_message" => "Only artists and admins.",
         ],
         "delete" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
-            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent supprimer un fichier.",
+            "security_post_denormalize_message" => "Only artists and admins.",
         ],
-    ]
+    ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST')"],
 )]
 class WorkFiles
 {

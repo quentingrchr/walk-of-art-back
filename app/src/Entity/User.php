@@ -16,21 +16,25 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
-    collectionOperations: [],
-    itemOperations: [
-    'get' => [
+    collectionOperations: [
+        'get' => [
             'method' => 'GET',
-            'path' => '/artistes/',
+            'path' => '/api/artists/',
             'controller' => UserController::class,
             'openapi_context' => [
-                'summary' => "Récupérer tout les artistes | Only Moderators & Admins"
+                'summary' => "Get all artists | Only Moderators & Admins"
             ]
         ],
+    ],
+    itemOperations: [
         'update_profile' => [
             'method' => 'POST',
-            'path' => '/update-profile',
+            'path' => '/api/update-profile',
             'controller' => UserController::class,
             'read' => false,
+            'openapi_context' => [
+                'summary' => "Update profile"
+            ]
         ],
     ],
     attributes: ["security" => "is_granted('ROLE_ARTIST')"],

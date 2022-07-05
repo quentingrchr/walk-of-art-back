@@ -15,19 +15,20 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
 #[ApiResource(
     collectionOperations: [
-        'getAll' => [
+        'get' => [
             'method' => 'GET',
-            'path' => '/api/expositions',
+            'path' => '/api/exhibitions',
             'controller' => ExhibitionController::class,
             'read' => false,
             'openapi_context' => [
-                'summary' => "Récupérer l'exposition de l'utilisateur connecté",
+                'summary' => "Get all exhibitions of current user"
             ],
             'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']],
         ],
         "post" => [
             "security" => "is_granted('ROLE_ARTIST')",
-            "security_message" => "Seulement les artistes peuvent ajouter une exposition.",
+            "security_message" => "Only artists.",
+            //            'denormalization_context' => ['groups' => ['write:Exhibition']]
         ],
     ],
     itemOperations: [
@@ -38,23 +39,22 @@ use Doctrine\ORM\Mapping as ORM;
         ],
         'get' => [
             'method' => 'GET',
-            'path' => '/exhibition/{id}',
-            'name' => 'app_api_exhibition',
+            'path' => '/api/exhibition/{id}',
             'controller' => ExhibitionController::class,
             'read' => false,
             'openapi_context' => [
-                'summary' => "Récupérer l'exposition de l'utilisateur"
+                'summary' => "Get an exhibition of current user"
             ],
             'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']]
         ],
-        'put' => [
+        "put" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
             "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une exposition.",
             'denormalization_context' => ['groups' => ['write:Exhibition']]
         ],
         "delete" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN')",
-            "security_post_denormalize_message" => "Seulement les administrateurs peuvent supprimer une exposition.",
+            "security_post_denormalize_message" => "Only admins.",
         ],
     ],
     attributes: ["security" => "is_granted('ROLE_ARTIST')"],
@@ -306,20 +306,6 @@ class Exhibition implements UserOwnedInterface
 //
 //        return $this;
 //    }
-
-    public function jsonSerialize()
-    {
-        return array(
-            'id' => $this->getId(),
-            'title'=> $this->getTitle(),
-            'description'=> $this->getDescription(),
-            'reaction'=> $this->getReaction(),
-            'revision'=> $this->getRevision(),
-            'workId'=> $this->getWork()->getId(),
-            'userId'=> $this->getUser()->getId(),
-            'createdAt'=> $this->getCreatedAt(),
-        );
-    }
 
     public function jsonSerialize()
     {

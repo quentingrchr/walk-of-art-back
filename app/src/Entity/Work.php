@@ -5,7 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\WorkController;
 use App\Controller\PostWorkFilesController;
-use App\Controller\WorkController;
 use App\Repository\WorkRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,19 +16,28 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: WorkRepository::class)]
 #[ApiResource(
     collectionOperations: [
-        'get',
         "post" => [
             "security" => "is_granted('ROLE_ARTIST')",
-            "security_message" => "Seulement les artistes peuvent ajouter un travail.",
+            "security_message" => "Only artists.",
+        ],
+        'get' => [
+            'method' => 'GET',
+            'path' => '/api/works',
+            'controller' => WorkController::class,
+            'read' => false,
+            'openapi_context' => [
+                'summary' => "Get all works of current user"
+            ]
         ],
     ],
     itemOperations: [
         'get' => [
             'method' => 'GET',
+            'path' => '/api/work/{id}',
             'controller' => WorkController::class,
             'read' => false,
             'openapi_context' => [
-                'summary' => "Récupérer les travaux de l'utilisateur connecté"
+                'summary' => "Get a work of a current user"
             ],
             "security" => "is_granted('ROLE_VISITOR')",
             "security_message" => "Tous le monde peut voir les travaux apart les visiteurs.",
@@ -68,13 +76,13 @@ use Doctrine\ORM\Mapping as ORM;
                 ]
             ]
         ],
-        'put' => [
+        "put" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
             "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier un travail.",
             'denormalization_context' => ['groups' => ['write:Work']],
 //            'normalization_context' => ['groups' => ['read:Work:collection','read:Work:item','read:User']],
         ],
-        'delete' => [
+        "delete" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
             "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent supprimer un travail.",
         ],
@@ -255,28 +263,6 @@ class Work implements UserOwnedInterface
         }
 
         return $this;
-    }
-
-    public function arrayOfWorkFile()
-    {
-        $arrayOfWorkFiles = [];
-        foreach($this->getWorkFiles() as $workFile) {
-            $arrayOfWorkFiles[] = $workFile->getId();
-        }
-
-        return $arrayOfWorkFiles;
-    }
-
-    public function jsonSerialize()
-    {
-        return array(
-            'id' => $this->getId(),
-            'title'=> $this->getTitle(),
-            'description'=> $this->getDescription(),
-            'createdAt'=> $this->getCreatedAt(),
-            'userId'=> $this->getUser()->getId(),
-            'workFilesIds'=> $this->arrayOfWorkFile(),
-        );
     }
 
     public function arrayOfWorkFile()
