@@ -2,16 +2,23 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ApiResource(
+    collectionOperations: [],
+    itemOperations: ['get'],
+    normalizationContext: ['groups' => ['read:User']],
+)]
 #[ORM\Table(name: '`user`')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
 {
@@ -19,9 +26,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
+    #[Groups(['read:User'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Groups(['read:User'])]
     private $email;
 
     #[ORM\Column(type: 'json')]
@@ -31,15 +40,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     private $password;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User'])]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User'])]
     private $lastname;
 
     #[ORM\Column(type: 'datetime')]
-    private $created_at;
+    private $createdAt;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Work::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Work::class)]
     private $works;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Exhibition::class)]
@@ -60,7 +71,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         $this->setCreatedAt(new \DateTime('now'));
     }
 
-    public function getId(): ?Uuid
+    public function getId()
     {
         return $this->id;
     }
@@ -163,12 +174,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
 
     public function getCreatedAt(): ?\DateTime
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $created_at): self
+    public function setCreatedAt(\DateTime $createdAt): self
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -272,7 +283,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     {
         if (!$this->galleries->contains($gallery)) {
             $this->galleries[] = $gallery;
-            $gallery->setCreatedUser($this);
+            $gallery->setUser($this);
         }
 
         return $this;
@@ -282,15 +293,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     {
         if ($this->galleries->removeElement($gallery)) {
             // set the owning side to null (unless already changed)
-            if ($gallery->getCreatedUser() === $this) {
-                $gallery->setCreatedUser(null);
+            if ($gallery->getUser() === $this) {
+                $gallery->setUser(null);
             }
         }
 
         return $this;
     }
 
-    public static function createFromPayload($id, array $payload)
+    public static function createFromPayload($id, array $payload): self
     {
         $user = new User();
         $user->setId($payload['id']);

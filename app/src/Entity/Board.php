@@ -19,7 +19,7 @@ class Board
     private $id;
 
     #[ORM\Column(type: 'datetime')]
-    private $created_at;
+    private $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Gallery::class, inversedBy: 'boards')]
     private $gallery;
@@ -39,12 +39,12 @@ class Board
 
     public function getCreatedAt(): ?\DateTime
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $created_at): self
+    public function setCreatedAt(\DateTime $createdAt): self
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
