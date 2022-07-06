@@ -22,27 +22,27 @@ class Gallery
     #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\Column(type: 'decimal', precision: 8, scale: 6)]
-    private $gps_lat;
+    #[ORM\Column(type: 'float', precision: 8, scale: 6)]
+    private $latitude;
 
-    #[ORM\Column(type: 'decimal', precision: 9, scale: 6)]
-    private $gps_long;
+    #[ORM\Column(type: 'float', precision: 9, scale: 6)]
+    private $longitude;
 
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2)]
-    private $Price;
+    private $price;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private $max_days;
+    private $maxDays;
 
     #[ORM\Column(type: 'datetime')]
-    private $created_at;
+    private $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Board::class)]
     private $boards;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'galleries')]
     #[ORM\JoinColumn(nullable: false)]
-    private $created_user;
+    private $user;
 
     public function __construct()
     {
@@ -67,62 +67,62 @@ class Gallery
         return $this;
     }
 
-    public function getGpsLat(): ?string
+    public function getLatitude(): ?string
     {
-        return $this->gps_lat;
+        return $this->latitude;
     }
 
-    public function setGpsLat(string $gps_lat): self
+    public function setLatitude(string $latitude): self
     {
-        $this->gps_lat = $gps_lat;
+        $this->latitude = $latitude;
 
         return $this;
     }
 
-    public function getGpsLong(): ?string
+    public function getLongitude(): ?string
     {
-        return $this->gps_long;
+        return $this->longitude;
     }
 
-    public function GpsLong(string $gps_long): self
+    public function setLongitude(string $longitude): self
     {
-        $this->gps_long = $gps_long;
+        $this->longitude = $longitude;
 
         return $this;
     }
 
     public function getPrice(): ?string
     {
-        return $this->Price;
+        return $this->price;
     }
 
-    public function setPrice(string $Price): self
+    public function setPrice(string $price): self
     {
-        $this->Price = $Price;
+        $this->price = $price;
 
         return $this;
     }
 
     public function getMaxDays(): ?int
     {
-        return $this->max_days;
+        return $this->maxDays;
     }
 
-    public function setMaxDays(?int $max_days): self
+    public function setMaxDays(?int $maxDays): self
     {
-        $this->max_days = $max_days;
+        $this->maxDays = $maxDays;
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTime
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $created_at): self
+    public function setCreatedAt(\DateTime $createdAt): self
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -169,14 +169,14 @@ class Gallery
         return $this;
     }
 
-    public function getCreatedUser(): ?User
+    public function getUser(): ?User
     {
-        return $this->created_user;
+        return $this->user;
     }
 
-    public function setCreatedUser(?User $created_user): self
+    public function setUser(?User $user): self
     {
-        $this->created_user = $created_user;
+        $this->user = $user;
 
         return $this;
     }
