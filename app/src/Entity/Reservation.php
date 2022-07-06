@@ -2,15 +2,19 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ReservationRepository;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
+#[ApiResource]
 class Reservation
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private $id;
 
     #[ORM\Column(type: 'date')]
@@ -19,14 +23,19 @@ class Reservation
     #[ORM\Column(type: 'integer')]
     private $duration;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
-    #[ORM\ManyToOne(targetEntity: Gallery::class, inversedBy: 'reservations')]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private $gallery;
+    private $exhibition;
 
-    public function getId(): ?int
+    public function __construct()
+    {
+        $this->setCreatedAt(new \DateTime('now'));
+    }
+
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -55,26 +64,26 @@ class Reservation
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 
         return $this;
     }
 
-    public function getGallery(): ?Gallery
+    public function getExhibition(): ?Exhibition
     {
-        return $this->gallery;
+        return $this->exhibition;
     }
 
-    public function setGallery(?Gallery $gallery): self
+    public function setExhibition(?Exhibition $exhibition): self
     {
-        $this->gallery = $gallery;
+        $this->exhibition = $exhibition;
 
         return $this;
     }

@@ -2,15 +2,21 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ExhibitionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
+#[ApiResource]
 class Exhibition
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -33,10 +39,19 @@ class Exhibition
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
-    public function getId(): ?int
+    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
+    private $exhibitionStatuts;
+
+    public function __construct()
+    {
+        $this->exhibitionStatuts = new ArrayCollection();
+        $this->setCreatedAt(new \DateTime('now'));
+    }
+
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -65,12 +80,12 @@ class Exhibition
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 
@@ -121,6 +136,36 @@ class Exhibition
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ExhibitionStatut>
+     */
+    public function getExhibitionStatuts(): Collection
+    {
+        return $this->exhibitionStatuts;
+    }
+
+    public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if (!$this->exhibitionStatuts->contains($exhibitionStatut)) {
+            $this->exhibitionStatuts[] = $exhibitionStatut;
+            $exhibitionStatut->setExhibition($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if ($this->exhibitionStatuts->removeElement($exhibitionStatut)) {
+            // set the owning side to null (unless already changed)
+            if ($exhibitionStatut->getExhibition() === $this) {
+                $exhibitionStatut->setExhibition(null);
+            }
+        }
 
         return $this;
     }

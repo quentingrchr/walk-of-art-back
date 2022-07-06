@@ -13,13 +13,42 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+        jwt:
+            lexik_jwt:
+                class: App\Entity\User
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
+
+        refresh:
+            pattern: ^/api/token_refresh
+            stateless: true
             provider: app_user_provider
+            refresh_jwt: ~
+
+        login:
+            pattern: ^/api/login
+            stateless: true
+            provider: app_user_provider
+            json_login:
+                check_path: /api/login_check
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        register:
+            pattern: api_register
+            stateless: true
+            provider: app_user_provider
+
+        api:
+            pattern: ^/api/
+            stateless: true
+            provider: jwt
+            jwt: ~
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -30,8 +59,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
+        - { path: ^/api/(login|token_refresh|register), roles: PUBLIC_ACCESS }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

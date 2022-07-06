@@ -5,16 +5,20 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Table(name: '`user`')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
@@ -32,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $lastname;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Work::class, orphanRemoval: true)]
@@ -41,15 +45,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Exhibition::class)]
     private $exhibitions;
 
+    #[ORM\ManyToMany(targetEntity: ExhibitionStatut::class, mappedBy: 'updatedUser')]
+    private $exhibitionStatuts;
+
+    #[ORM\OneToMany(mappedBy: 'created_user', targetEntity: Gallery::class)]
+    private $galleries;
+
     public function __construct()
     {
         $this->works = new ArrayCollection();
         $this->exhibitions = new ArrayCollection();
+        $this->exhibitionStatuts = new ArrayCollection();
+        $this->galleries = new ArrayCollection();
+        $this->setCreatedAt(new \DateTime('now'));
     }
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
+    }
+
+    public function setId($id): self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getEmail(): ?string
@@ -141,12 +161,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 
@@ -211,5 +231,71 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, ExhibitionStatut>
+     */
+    public function getExhibitionStatuts(): Collection
+    {
+        return $this->exhibitionStatuts;
+    }
+
+    public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if (!$this->exhibitionStatuts->contains($exhibitionStatut)) {
+            $this->exhibitionStatuts[] = $exhibitionStatut;
+            $exhibitionStatut->addUpdatedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    {
+        if ($this->exhibitionStatuts->removeElement($exhibitionStatut)) {
+            $exhibitionStatut->removeUpdatedUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Gallery>
+     */
+    public function getGalleries(): Collection
+    {
+        return $this->galleries;
+    }
+
+    public function addGallery(Gallery $gallery): self
+    {
+        if (!$this->galleries->contains($gallery)) {
+            $this->galleries[] = $gallery;
+            $gallery->setCreatedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGallery(Gallery $gallery): self
+    {
+        if ($this->galleries->removeElement($gallery)) {
+            // set the owning side to null (unless already changed)
+            if ($gallery->getCreatedUser() === $this) {
+                $gallery->setCreatedUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public static function createFromPayload($id, array $payload)
+    {
+        $user = new User();
+        $user->setId($payload['id']);
+        $user->setEmail($payload['email']);
+        $user->setRoles($payload['roles']);
+        return $user;
     }
 }

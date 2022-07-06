@@ -2,17 +2,21 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GalleryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GalleryRepository::class)]
+#[ApiResource]
 class Gallery
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -30,22 +34,23 @@ class Gallery
     #[ORM\Column(type: 'integer', nullable: true)]
     private $max_days;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     private $created_at;
 
     #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Board::class)]
     private $boards;
 
-    #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Reservation::class, orphanRemoval: true)]
-    private $reservations;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'galleries')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $created_user;
 
     public function __construct()
     {
         $this->boards = new ArrayCollection();
-        $this->reservations = new ArrayCollection();
+        $this->setCreatedAt(new \DateTime('now'));
     }
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -110,12 +115,12 @@ class Gallery
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 
@@ -152,24 +157,6 @@ class Gallery
         return $this;
     }
 
-    /**
-     * @return Collection<int, Reservation>
-     */
-    public function getReservations(): Collection
-    {
-        return $this->reservations;
-    }
-
-    public function addReservation(Reservation $reservation): self
-    {
-        if (!$this->reservations->contains($reservation)) {
-            $this->reservations[] = $reservation;
-            $reservation->setGallery($this);
-        }
-
-        return $this;
-    }
-
     public function removeReservation(Reservation $reservation): self
     {
         if ($this->reservations->removeElement($reservation)) {
@@ -178,6 +165,18 @@ class Gallery
                 $reservation->setGallery(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedUser(): ?User
+    {
+        return $this->created_user;
+    }
+
+    public function setCreatedUser(?User $created_user): self
+    {
+        $this->created_user = $created_user;
 
         return $this;
     }
