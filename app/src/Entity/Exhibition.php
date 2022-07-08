@@ -4,11 +4,13 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\ExhibitionController;
+use App\Controller\GetExhibitionController;
+use App\Controller\GetReservationsController;
 use App\Repository\ExhibitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -17,13 +19,12 @@ use Doctrine\ORM\Mapping as ORM;
     collectionOperations: [
         'get' => [
             'method' => 'GET',
-            'path' => '/api/exhibitions',
-            'controller' => ExhibitionController::class,
-            'read' => false,
+            'path' => '/exhibitions',
+            'read' => true,
             'openapi_context' => [
-                'summary' => "Get all exhibitions of current user"
+                'summary' => "Get all exhibitions of current user",
             ],
-            'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']],
+            'normalization_context' => ['groups' => ['read:Exhibition:item', 'read:Work:child', 'read:User', 'read:Reservation:child']],
         ],
         "post" => [
             "security" => "is_granted('ROLE_ARTIST')",
@@ -32,24 +33,19 @@ use Doctrine\ORM\Mapping as ORM;
         ],
     ],
     itemOperations: [
-        'post' => [
-                "security" => "is_granted('ROLE_ARTIST')",
-                "security_message" => "Seulement les artistes peuvent ajouter une exposition.",
-//            'denormalization_context' => ['groups' => ['write:Exhibition']]
-        ],
         'get' => [
             'method' => 'GET',
-            'path' => '/api/exhibition/{id}',
-            'controller' => ExhibitionController::class,
-            'read' => false,
+            'path' => '/exhibition/{id}',
+            'controller' => GetExhibitionController::class,
+            'read' => true,
             'openapi_context' => [
                 'summary' => "Get an exhibition of current user"
             ],
-            'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']]
+            'normalization_context' => ['groups' => ['read:Exhibition:item', 'read:Work:child', 'read:User', 'read:Reservation:child']]
         ],
         "put" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
-            "security_post_denormalize_message" => "Seulement l'artiste courant et/ou les administrateurs peuvent modifier une exposition.",
+            "security_post_denormalize_message" => "Only artists and admins.",
             'denormalization_context' => ['groups' => ['write:Exhibition']]
         ],
         "delete" => [
@@ -67,23 +63,23 @@ class Exhibition implements UserOwnedInterface
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
-    #[Groups(['read:Exhibition:collection','read:Work:collection'])]
+    #[Groups(['read:Exhibition:collection','read:Work:collection','read:Exhibition:item', 'read:Exhibition:child'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['read:Exhibition:collection','write:Exhibition'])]
+    #[Groups(['read:Exhibition:collection','write:Exhibition','read:Exhibition:','read:Exhibition:item', 'read:Exhibition:child'])]
     private $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['read:Work:item','write:Exhibition'])]
+    #[Groups(['read:Work:item','write:Exhibition','read:Exhibition','read:Exhibition:item', 'read:Exhibition:child'])]
     private $description;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['read:Work:item'])] //,'write:Exhibition'])]
+    #[Groups(['read:Work:item','read:Exhibition', 'read:Exhibition:child'])] //,'write:Exhibition'])]
     private $reaction;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['read:Work:item','write:Exhibition'])] // TODO:: True obligatoire
+    #[Groups(['read:Work:item','write:Exhibition', 'read:Exhibition:child'])] // TODO:: True obligatoire
     private $comment;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
@@ -91,11 +87,12 @@ class Exhibition implements UserOwnedInterface
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'exhibitions')]
     #[ORM\JoinColumn(nullable: false)]
-//    #[Groups(['read:Exhibition:item'])]
+    #[Groups(['read:Exhibition:item', 'read:Exhibition:collection'])]
+    #[MaxDepth(2)]
     private $user;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:Work:collection'])]
+    #[Groups(['read:Work:collection','read:Exhibition:item', 'read:Exhibition:child'])]
     private $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
@@ -103,11 +100,11 @@ class Exhibition implements UserOwnedInterface
 
     #[ORM\ManyToOne(targetEntity: Work::class, inversedBy: 'exhibitions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['read:Exhibition:collection','write:Exhibition'])]
+    #[Groups(['read:Exhibition:collection','write:Exhibition','read:Exhibition:item'])]
     private $work;
 
     #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: Reservation::class, orphanRemoval: true)]
-    #[Groups(['read:Exhibition:item'])]
+    #[Groups(['read:Exhibition:item', 'read:Exhibition:child'])]
 //    #[MaxDepth(1)]
     private $reservations;
 

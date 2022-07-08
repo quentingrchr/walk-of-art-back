@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetWorkController;
 use App\Controller\WorkController;
 use App\Controller\PostWorkFilesController;
 use App\Repository\WorkRepository;
@@ -16,39 +17,37 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: WorkRepository::class)]
 #[ApiResource(
     collectionOperations: [
+        'get' => [
+            'method' => 'GET',
+            'path' => '/works',
+            'read' => true,
+            'openapi_context' => [
+                'summary' => "Get all works of current user"
+            ],
+            'normalization_context' => ['groups' => ['read:Work:collection','read:Work:item','read:User','read:Exhibition:child']],
+        ],
         "post" => [
             "security" => "is_granted('ROLE_ARTIST')",
             "security_message" => "Only artists.",
-        ],
-        'get' => [
-            'method' => 'GET',
-            'path' => '/api/works',
-            'controller' => WorkController::class,
-            'read' => false,
-            'openapi_context' => [
-                'summary' => "Get all works of current user"
-            ]
         ],
     ],
     itemOperations: [
         'get' => [
             'method' => 'GET',
-            'path' => '/api/work/{id}',
-            'controller' => WorkController::class,
-            'read' => false,
+            'path' => '/work/{id}',
+            'controller' => GetWorkController::class,
+            'read' => true,
             'openapi_context' => [
                 'summary' => "Get a work of a current user"
             ],
-            "security" => "is_granted('ROLE_VISITOR')",
-            "security_message" => "Tous le monde peut voir les travaux apart les visiteurs.",
             'normalization_context' => [
-                'groups' => ['read:Work:collection','read:Work:item','read:User','read:Exhibition:collection'],
+                'groups' => ['read:Work:collection','read:Work:item','read:User','read:Exhibition:child'],
                 'enable_max_depth' => true
             ],
         ],
         'post_files' => [
             'method' => 'POST',
-            'path' => '/works/{id}',
+            'path' => '/works-file/{id}',
             'deserialize' => false,
             'controller' => PostWorkFilesController::class,
             'normalization_context' => ['groups' => ['read:Work:collection','read:Work:item','read:User']],
@@ -97,39 +96,38 @@ class Work implements UserOwnedInterface
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    #[Groups(['read:Work:collection'])]
+    #[Groups(['read:Work:collection','read:Work:item', 'read:Work:child'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['read:Work:collection', 'write:Work'])]
+    #[Groups(['read:Work:collection', 'write:Work','read:Work:item'])]
     private $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['read:Work:collection', 'write:Work'])]
+    #[Groups(['read:Work:collection', 'write:Work','read:Work:item'])]
     private $description;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:Work:item'])]
+    #[Groups(['read:Work:collection','read:Work:item'])]
     private $createdAt;
 
     #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'], inversedBy: 'works')]
     #[ORM\JoinColumn(nullable: false)]
-//    #[Groups(['read:Work:item'])]
-//    #[MaxDepth(1)]
+    #[Groups(['read:Work:collection','read:Work:item'])]
     private $user;
 
     #[ORM\OneToOne(targetEntity: WorkFiles::class, cascade: ['remove'])]
-    #[Groups(['read:Work:collection', 'write:Work'])]
+    #[Groups(['read:Work:collection', 'write:Work','read:Work:item', 'read:Work:child'])]
     #[MaxDepth(1)]
     private $mainFile;
 
     #[ORM\OneToMany(mappedBy: 'work', targetEntity: WorkFiles::class, orphanRemoval: true)]
-    #[Groups(['read:Work:item', 'write:Work'])]
+    #[Groups(['read:Work:collection', 'write:Work','read:Work:item', 'read:Work:child'])]
     #[MaxDepth(1)]
     private $workFiles;
 
     #[ORM\OneToMany(mappedBy: 'work', targetEntity: Exhibition::class)]
-    #[Groups(['read:Work:item'])]
+    #[Groups(['read:Work:collection', 'read:Work:item'])]
     #[MaxDepth(1)]
     private $exhibitions;
 

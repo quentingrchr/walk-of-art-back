@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetWorkController;
+use App\Controller\GetWorkFileController;
 use App\Controller\WorkController;
 use App\Controller\PostWorkFilesController;
 use App\Repository\WorkFilesRepository;
@@ -18,7 +20,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ORM\Entity(repositoryClass: WorkFilesRepository::class)]
 #[ApiResource(
     collectionOperations: [
-        "post" => [
+        'post' => [
             "security" => "is_granted('ROLE_ARTIST')",
             "security_message" => "Only artists.",
         ],
@@ -26,12 +28,13 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     itemOperations: [
         'get' => [
             'method' => 'GET',
-            'path' => '/api/work-file/{id}',
-            'controller' => WorkController::class,
-            'read' => false,
+            'path' => '/work-file/{id}',
+            'controller' => GetWorkFileController::class,
+            'read' => true,
             'openapi_context' => [
                 'summary' => "Get a work file of a current user"
-            ]
+            ],
+            'normalization_context' => ['groups' => ['read:WorkFile:item']],
         ],
         "put" => [
             "security_post_denormalize" => "is_granted('ROLE_ADMIN') or (object.owner == user and previous_object.owner == user)",
@@ -50,7 +53,7 @@ class WorkFiles
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
-    #[Groups(['read:Work:collection'])]
+    #[Groups(['read:Work:collection','read:WorkFile:item', 'read:Work:child'])]
     private $id;
 
     /**
@@ -59,16 +62,19 @@ class WorkFiles
     private ?File $file;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['read:WorkFile:item','read:WorkFile:collection', 'read:Work:child'])]
     private $pathFile;
 
-    #[Groups(['read:Work:collection'])]
+    #[Groups(['read:Work:collection','read:WorkFile:item'])]
     private ?string $fileUrl;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['read:WorkFile:item','read:WorkFile:collection', 'read:Work:child'])]
     private $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Work::class, cascade: ['persist', 'remove'], inversedBy: 'work_files')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read:WorkFile:item','read:WorkFile:collection'])]
     private $work;
 
     public function __construct()

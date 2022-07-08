@@ -19,9 +19,4 @@ class ReservationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reservation::class);
     }
-
-    public function findByUser(User $user)
-    {
-        return ;
-    }
 }

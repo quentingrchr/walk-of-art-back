@@ -27,6 +27,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
         ],
     ],
     itemOperations: [
+        'get',
         'update_profile' => [
             'method' => 'POST',
             'path' => '/api/update-profile',
