@@ -42,6 +42,9 @@ class Board
     #[Groups(['read:Board','write:Board'])]
     private $orientation;
 
+    #[ORM\ManyToOne(targetEntity: Reservation::class, inversedBy: 'boards')]
+    private $reservation;
+
     public function __construct()
     {
         $this->setCreatedAt(new \DateTime('now'));

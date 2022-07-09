@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetGalleryAction;
 use App\Repository\GalleryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,7 +19,37 @@ use Doctrine\ORM\Mapping as ORM;
         'post' => [
             'denormalization_context' => ['groups' => ['write:Gallery']],
             'normalization_context' => ['groups' => ['read:Gallery:collection','read:Gallery:item','read:Board']],
-        ]
+        ],
+        'get_available_galleries' => [
+            'method' => 'GET',
+            'path' => '/galleries/available',
+            'deserialize' => false,
+            'controller' => GetGalleryAction::class,
+            'openapi_context' => [
+                'summary' => "Get all galleries that have board dates and orientation available",
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema'  => [
+                                'type'       => 'object',
+                                'properties' =>
+                                    [
+                                        'date_start'    => ['type' => 'string'],
+                                        'date_end'      => ['type' => 'string'],
+                                        'orientation'   => ['type' => 'string'],
+                                    ],
+                            ],
+                            'example' => [
+                                "date_start"    => "2022-07-09",
+                                "date_end"      => "2022-07-11",
+                                "orientation"   => "vertical"
+                            ],
+                        ],
+                    ]
+                ]
+            ],
+            'normalization_context' => ['groups' => ['read:Gallery:collection', 'read:Gallery:items']]
+        ],
     ],
     itemOperations: [
         'get' => [
