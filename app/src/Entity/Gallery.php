@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\GetGalleryAction;
+use App\Controller\GetAvailableGalleriesAction;
 use App\Repository\GalleryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -24,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
             'method' => 'POST',
             'path' => '/galleries/available',
             'deserialize' => false,
-            'controller' => GetGalleryAction::class,
+            'controller' => GetAvailableGalleriesAction::class,
             'openapi_context' => [
                 'summary' => "Get all galleries that have board dates and orientation available",
                 'requestBody' => [

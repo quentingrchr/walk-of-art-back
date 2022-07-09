@@ -24,35 +24,30 @@ class GalleryRepository extends ServiceEntityRepository
 
     public function findByParams($params)
     {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql =  '
-            SELECT gallery.*
-            FROM gallery, board, reservation
-            where gallery.id = board.gallery_id
-            AND (reservation.id = board.reservation_id or board.reservation_id IS null)
-            AND (reservation.date_end < CAST(:dateStart AS DATE) or reservation.date_start > CAST(:dateEnd AS DATE))
-            AND :dateDiff <= gallery.max_days
-            AND :orientation = board.orientation
-            GROUP by gallery.id
-            ';
+        $entityManager = $this->getEntityManager();
 
         $dateStart = new DateTime($params['dateStart']);
         $dateEnd = new DateTime($params['dateEnd']);
 
-        $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery([
-            'dateStart' => $params['dateStart'],
-            'dateEnd' => $params['dateEnd'],
+        $query = $entityManager->createQuery(
+            '
+                SELECT g
+                FROM App\Entity\Gallery g, App\Entity\Board b, App\Entity\Reservation r
+                where g.id = b.gallery
+                AND (r.board = b.id or r.board IS NULL)
+                AND (r.dateEnd < :dateStart or r.dateStart > :dateEnd)
+                AND :dateDiff <= g.maxDays
+                AND :orientation = b.orientation
+                GROUP by g.id
+                '
+        )->setParameters([
+            'dateStart' => $dateStart,
+            'dateEnd' => $dateEnd,
             'dateDiff' => $dateEnd->diff($dateStart)->format("%a"),
             'orientation' => $params['orientation']
         ]);
 
-        try {
-            return $resultSet->fetchAllAssociative();
-        } catch (Exception $e) {
-            throw new \RuntimeException('Query error : '. $e);
-        }
+        return $query->getResult();
 
         // Sql Query used :
 
