@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
             'normalization_context' => ['groups' => ['read:Gallery:collection','read:Gallery:item','read:Board']],
         ],
         'get_available_galleries' => [
-            'method' => 'GET',
+            'method' => 'POST',
             'path' => '/galleries/available',
             'deserialize' => false,
             'controller' => GetGalleryAction::class,
@@ -34,14 +34,14 @@ use Doctrine\ORM\Mapping as ORM;
                                 'type'       => 'object',
                                 'properties' =>
                                     [
-                                        'date_start'    => ['type' => 'string'],
-                                        'date_end'      => ['type' => 'string'],
+                                        'dateDtart'    => ['type' => 'string'],
+                                        'dateEnd'      => ['type' => 'string'],
                                         'orientation'   => ['type' => 'string'],
                                     ],
                             ],
                             'example' => [
-                                "date_start"    => "2022-07-09",
-                                "date_end"      => "2022-07-11",
+                                "dateStart"    => "2022-07-09",
+                                "dateEnd"      => "2022-07-11",
                                 "orientation"   => "vertical"
                             ],
                         ],

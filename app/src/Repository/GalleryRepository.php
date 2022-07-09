@@ -31,20 +31,20 @@ class GalleryRepository extends ServiceEntityRepository
             FROM gallery, board, reservation
             where gallery.id = board.gallery_id
             AND (reservation.id = board.reservation_id or board.reservation_id IS null)
-            AND (reservation.date_end < CAST(:date_start AS DATE) or reservation.date_start > CAST(:date_end AS DATE))
-            AND :date_diff <= gallery.max_days
+            AND (reservation.date_end < CAST(:dateStart AS DATE) or reservation.date_start > CAST(:dateEnd AS DATE))
+            AND :dateDiff <= gallery.max_days
             AND :orientation = board.orientation
             GROUP by gallery.id
             ';
 
-        $date_start = new DateTime($params['date_start']);
-        $date_end = new DateTime($params['date_end']);
+        $dateStart = new DateTime($params['dateStart']);
+        $dateEnd = new DateTime($params['dateEnd']);
 
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery([
-            'date_start' => $params['date_start'],
-            'date_end' => $params['date_end'],
-            'date_diff' => $date_end->diff($date_start)->format("%a"),
+            'dateStart' => $params['dateStart'],
+            'dateEnd' => $params['dateEnd'],
+            'dateDiff' => $dateEnd->diff($dateStart)->format("%a"),
             'orientation' => $params['orientation']
         ]);
 
@@ -60,7 +60,7 @@ class GalleryRepository extends ServiceEntityRepository
         // from gallery, board, reservation
         // where gallery.id = board.gallery_id
         // and reservation.id = board.reservation_id or board.reservation_id = null
-        // and date_start > reservation.dateEnd or date_end < reservation.dateStart
+        // and dateStart > reservation.dateEnd or dateEnd < reservation.dateStart
         // and DATEDIFF(Date.now, reservation.dateStart) <= gallery.max_days
         // and orientation = board.orientation
     }
