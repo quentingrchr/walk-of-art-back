@@ -5,26 +5,41 @@ namespace App\Entity;
 use App\Config\OrientationEnum;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\BoardRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BoardRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        'get',
+        'post'
+    ],
+    itemOperations: [
+        'get'
+    ],
+    denormalizationContext: ['groups' => ['write:Board']],
+    normalizationContext: ['groups' => ['read:Board','read:Gallery:collection']],
+
+)]
 class Board
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
+    #[Groups(['read:Board'])]
     private $id;
 
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Gallery::class, inversedBy: 'boards')]
+    #[Groups(['read:Board','write:Board'])]
     private $gallery;
 
     #[ORM\Column(type: 'string', enumType: OrientationEnum::class)]
+    #[Groups(['read:Board','write:Board'])]
     private $orientation;
 
     public function __construct()
@@ -61,12 +76,12 @@ class Board
         return $this;
     }
 
-    public function getOrientation(): ?string
+    public function getOrientation(): ?OrientationEnum
     {
         return $this->orientation;
     }
 
-    public function setOrientation(string $orientation): self
+    public function setOrientation(OrientationEnum $orientation): self
     {
         $this->orientation = $orientation;
 

@@ -47,27 +47,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     #[Groups(['read:User'])]
     private $lastname;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $urlFacebook;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $urlTwitter;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $urlPersonalWebsite;
+
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Work::class)]
-    private $works;
-
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Exhibition::class)]
-    private $exhibitions;
-
-    #[ORM\ManyToMany(targetEntity: ExhibitionStatut::class, mappedBy: 'updatedUser')]
-    private $exhibitionStatuts;
-
-    #[ORM\OneToMany(mappedBy: 'created_user', targetEntity: Gallery::class)]
-    private $galleries;
-
     public function __construct()
     {
-        $this->works = new ArrayCollection();
-        $this->exhibitions = new ArrayCollection();
-        $this->exhibitionStatuts = new ArrayCollection();
-        $this->galleries = new ArrayCollection();
         $this->setCreatedAt(new \DateTime('now'));
     }
 
@@ -184,123 +177,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         return $this;
     }
 
-    /**
-     * @return Collection<int, Work>
-     */
-    public function getWorks(): Collection
-    {
-        return $this->works;
-    }
-
-    public function addWork(Work $work): self
-    {
-        if (!$this->works->contains($work)) {
-            $this->works[] = $work;
-            $work->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeWork(Work $work): self
-    {
-        if ($this->works->removeElement($work)) {
-            // set the owning side to null (unless already changed)
-            if ($work->getUser() === $this) {
-                $work->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Exhibition>
-     */
-    public function getExhibitions(): Collection
-    {
-        return $this->exhibitions;
-    }
-
-    public function addExhibition(Exhibition $exhibition): self
-    {
-        if (!$this->exhibitions->contains($exhibition)) {
-            $this->exhibitions[] = $exhibition;
-            $exhibition->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeExhibition(Exhibition $exhibition): self
-    {
-        if ($this->exhibitions->removeElement($exhibition)) {
-            // set the owning side to null (unless already changed)
-            if ($exhibition->getUser() === $this) {
-                $exhibition->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ExhibitionStatut>
-     */
-    public function getExhibitionStatuts(): Collection
-    {
-        return $this->exhibitionStatuts;
-    }
-
-    public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
-    {
-        if (!$this->exhibitionStatuts->contains($exhibitionStatut)) {
-            $this->exhibitionStatuts[] = $exhibitionStatut;
-            $exhibitionStatut->addUpdatedUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
-    {
-        if ($this->exhibitionStatuts->removeElement($exhibitionStatut)) {
-            $exhibitionStatut->removeUpdatedUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Gallery>
-     */
-    public function getGalleries(): Collection
-    {
-        return $this->galleries;
-    }
-
-    public function addGallery(Gallery $gallery): self
-    {
-        if (!$this->galleries->contains($gallery)) {
-            $this->galleries[] = $gallery;
-            $gallery->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGallery(Gallery $gallery): self
-    {
-        if ($this->galleries->removeElement($gallery)) {
-            // set the owning side to null (unless already changed)
-            if ($gallery->getUser() === $this) {
-                $gallery->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
     public static function createFromPayload($id, array $payload): self
     {
         $user = new User();
@@ -308,5 +184,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         $user->setEmail($payload['email']);
         $user->setRoles($payload['roles']);
         return $user;
+    }
+
+    public function getUrlFacebook(): ?string
+    {
+        return $this->urlFacebook;
+    }
+
+    public function setUrlFacebook(?string $urlFacebook): self
+    {
+        $this->urlFacebook = $urlFacebook;
+
+        return $this;
+    }
+
+    public function getUrlTwitter(): ?string
+    {
+        return $this->urlTwitter;
+    }
+
+    public function setUrlTwitter(?string $urlTwitter): self
+    {
+        $this->urlTwitter = $urlTwitter;
+
+        return $this;
+    }
+
+    public function getUrlPersonalWebsite(): ?string
+    {
+        return $this->urlPersonalWebsite;
+    }
+
+    public function setUrlPersonalWebsite(?string $urlPersonalWebsite): self
+    {
+        $this->urlPersonalWebsite = $urlPersonalWebsite;
+
+        return $this;
     }
 }

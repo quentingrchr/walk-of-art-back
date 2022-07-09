@@ -2,14 +2,13 @@
 
 namespace App\Entity;
 
+use App\Config\StatusEnum;
 use App\Repository\ExhibitionStatutRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExhibitionStatutRepository::class)]
-class ExhibitionStatut
+class ExhibitionStatut implements UserOwnedInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -17,25 +16,25 @@ class ExhibitionStatut
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
     private $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', enumType: StatusEnum::class)]
     private $status;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $decription;
+    private $description;
 
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Exhibition::class, inversedBy: 'exhibitionStatuts')]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class, inversedBy: 'statuts')]
     #[ORM\JoinColumn(nullable: false)]
     private $exhibition;
 
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'exhibitionStatuts')]
-    private $updatedUser;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
 
     public function __construct()
     {
-        $this->updatedUser = new ArrayCollection();
         $this->setCreatedAt(new \DateTime('now'));
     }
 
@@ -44,26 +43,26 @@ class ExhibitionStatut
         return $this->id;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?StatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus(StatusEnum $status): self
     {
         $this->status = $status;
 
         return $this;
     }
 
-    public function getDecription(): ?string
+    public function getDescription(): ?string
     {
-        return $this->decription;
+        return $this->description;
     }
 
-    public function setDecription(?string $decription): self
+    public function setDescription(?string $description): self
     {
-        $this->decription = $decription;
+        $this->description = $description;
 
         return $this;
     }
@@ -92,26 +91,14 @@ class ExhibitionStatut
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUpdatedUser(): Collection
+    public function getUser(): ?User
     {
-        return $this->updatedUser;
+        return $this->user;
     }
 
-    public function addUpdatedUser(User $updatedUser): self
+    public function setUser(?User $user): self
     {
-        if (!$this->updatedUser->contains($updatedUser)) {
-            $this->updatedUser[] = $updatedUser;
-        }
-
-        return $this;
-    }
-
-    public function removeUpdatedUser(User $updatedUser): self
-    {
-        $this->updatedUser->removeElement($updatedUser);
+        $this->user = $user;
 
         return $this;
     }

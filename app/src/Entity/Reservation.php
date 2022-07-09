@@ -49,10 +49,14 @@ class Reservation
     #[Groups(['read:Reservation:collection'])]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Exhibition::class, cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class, cascade: ['persist'], inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['read:Reservation:collection','write:Reservation'])]//
+    #[Groups(['read:Reservation:item','write:Reservation'])]//
     private $exhibition;
+
+    #[ORM\ManyToOne(targetEntity: Board::class)]
+    #[Groups(['read:Reservation:collection'])]
+    private $board;
 
     // TODO :: gérer orientation
 
@@ -110,6 +114,18 @@ class Reservation
     public function setExhibition(?Exhibition $exhibition): self
     {
         $this->exhibition = $exhibition;
+
+        return $this;
+    }
+
+    public function getBoard(): ?Board
+    {
+        return $this->board;
+    }
+
+    public function setBoard(?Board $board): self
+    {
+        $this->board = $board;
 
         return $this;
     }
