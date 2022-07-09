@@ -6,43 +6,66 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GalleryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GalleryRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: [
+        'get',
+        'post' => [
+            'denormalization_context' => ['groups' => ['write:Gallery']],
+            'normalization_context' => ['groups' => ['read:Gallery:collection','read:Gallery:item','read:Board']],
+        ]
+    ],
+    itemOperations: [
+        'get' => [
+            'normalization_context' => [
+                'groups' => ['read:Gallery:collection','read:Gallery:item','read:Board'],
+                'enable_max_depth' => true
+            ],
+        ],
+    ],
+    normalizationContext: ['groups' => ['read:Gallery:collection']],
+)]
 class Gallery
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
+    #[Groups(['read:Gallery:collection'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['read:Gallery:collection','write:Gallery'])]
     private $name;
 
     #[ORM\Column(type: 'float', precision: 8, scale: 6)]
+    #[Groups(['read:Gallery:collection','write:Gallery'])]
     private $latitude;
 
     #[ORM\Column(type: 'float', precision: 9, scale: 6)]
+    #[Groups(['read:Gallery:collection','write:Gallery'])]
     private $longitude;
 
-    #[ORM\Column(type: 'decimal', precision: 5, scale: 2)]
+    #[ORM\Column(type: 'float', precision: 5, scale: 2)]
+    #[Groups(['read:Gallery:item','write:Gallery'])]
     private $price;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['read:Gallery:item','write:Gallery'])]
     private $maxDays;
 
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Board::class)]
+    #[ORM\OneToMany(mappedBy: 'gallery', targetEntity: Board::class, cascade: ['persist'])]
+    #[Groups(['read:Gallery:item'])]
+    #[MaxDepth(1)]
     private $boards;
-
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'galleries')]
-    #[ORM\JoinColumn(nullable: false)]
-    private $user;
 
     public function __construct()
     {
@@ -165,18 +188,6 @@ class Gallery
                 $reservation->setGallery(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
 
         return $this;
     }

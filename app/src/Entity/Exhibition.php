@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Config\StatusEnum;
 use App\Repository\ExhibitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,23 +15,29 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
 #[ApiResource(
     collectionOperations: [
-        'get',
-        'post' =>
-            [
-//            'denormalization_context' => ['groups' => ['write:Exhibition']]
+        'get' => [
+            'normalization_context' => ['groups' => [
+                'read:Exhibition:collection','read:Work:collection',
+                'read:Reservation:collection',/*'read:Board','read:Gallery:collection',*/
+                'read:User'
+            ]],
         ],
+        'post',
     ],
     itemOperations: [
         'get' => [
-            'normalization_context' => ['groups' => ['read:Exhibition:collection','read:Exhibition:item','read:User']]
+            'normalization_context' => ['groups' => [
+                'read:Exhibition:collection','read:Exhibition:item','read:Work:collection',
+                'read:Reservation:collection','read:User'
+            ]]
         ],
-        'put' => [
-            'denormalization_context' => ['groups' => ['write:Exhibition']]
-        ],
+        'put',
         'delete'
     ],
     denormalizationContext: ['groups' => ['write:Exhibition']],
-    normalizationContext: ['groups' => ['read:Exhibition:collection']],
+    normalizationContext: ['groups' => [
+        'read:Exhibition:collection'
+    ]],
 )]
 class Exhibition implements UserOwnedInterface
 {
@@ -38,7 +45,7 @@ class Exhibition implements UserOwnedInterface
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: "CUSTOM")]
     #[ORM\CustomIdGenerator(class: "doctrine.uuid_generator")]
-    #[Groups(['read:Exhibition:collection','read:Work:collection'])]
+    #[Groups(['read:Exhibition:collection','read:Exhibition:Work'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -46,31 +53,31 @@ class Exhibition implements UserOwnedInterface
     private $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['read:Work:item','write:Exhibition'])]
+    #[Groups(['read:Exhibition:item','write:Exhibition'])]
     private $description;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['read:Work:item'])] //,'write:Exhibition'])]
+    #[Groups(['read:Exhibition:item'])] //,'write:Exhibition'])] // INFO:: True obligatoire
     private $reaction;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['read:Work:item','write:Exhibition'])] // TODO:: True obligatoire
+    #[Groups(['read:Exhibition:item','write:Exhibition'])]
     private $comment;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     private $revision;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'exhibitions')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-//    #[Groups(['read:Exhibition:item'])]
     private $user;
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read:Work:collection'])]
     private $createdAt;
 
-    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
-    private $exhibitionStatuts;
+    #[ORM\OneToMany(mappedBy: 'exhibition', cascade: ['persist'], targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
+    #[Groups(['read:Exhibition:item'/*,'read:Exhibition:Work'*/])] // WARNING :: pas besoin pour les work
+    private $statuts;
 
     #[ORM\ManyToOne(targetEntity: Work::class, inversedBy: 'exhibitions')]
     #[ORM\JoinColumn(nullable: false)]
@@ -78,7 +85,7 @@ class Exhibition implements UserOwnedInterface
     private $work;
 
     #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: Reservation::class, orphanRemoval: true)]
-    #[Groups(['read:Exhibition:item'])]
+    #[Groups(['read:Exhibition:collection','read:Exhibition:Work'])]
 //    #[MaxDepth(1)]
     private $reservations;
 
@@ -95,14 +102,15 @@ class Exhibition implements UserOwnedInterface
 //    ])]
 //    private $snapshot = [];
 
-    // TODO :: Add (write)  || Snapshot(array{name,url}) || suite dans exhibition
+    // TODO :: Snapshot(array{name,url})
 
     public function __construct()
     {
-        $this->exhibitionStatuts = new ArrayCollection();
+        $this->statuts = new ArrayCollection();
         $this->reservations = new ArrayCollection();
         $this->setReaction(true);
         $this->setCreatedAt(new \DateTime('now'));
+//        $this->addExhibitionStatut((new ExhibitionStatut())->setStatus(StatusEnum::PENDING)->setDescription('Creation of the exhibition')->setExhibition($this));
     }
 
     public function getId(): ?Uuid
@@ -197,24 +205,24 @@ class Exhibition implements UserOwnedInterface
     /**
      * @return Collection<int, ExhibitionStatut>
      */
-    public function getExhibitionStatuts(): Collection
+    public function getStatuts(): Collection
     {
-        return $this->exhibitionStatuts;
+        return $this->statuts;
     }
 
     public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
     {
-        if (!$this->exhibitionStatuts->contains($exhibitionStatut)) {
-            $this->exhibitionStatuts[] = $exhibitionStatut;
+        if (!$this->statuts->contains($exhibitionStatut)) {
+            $this->statuts[] = $exhibitionStatut;
             $exhibitionStatut->setExhibition($this);
         }
 
         return $this;
     }
 
-    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+/*    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
     {
-        if ($this->exhibitionStatuts->removeElement($exhibitionStatut)) {
+        if ($this->statuts->removeElement($exhibitionStatut)) {
             // set the owning side to null (unless already changed)
             if ($exhibitionStatut->getExhibition() === $this) {
                 $exhibitionStatut->setExhibition(null);
@@ -222,7 +230,7 @@ class Exhibition implements UserOwnedInterface
         }
 
         return $this;
-    }
+    }*/
 
     public function getWork(): ?Work
     {
@@ -256,7 +264,7 @@ class Exhibition implements UserOwnedInterface
 
     public function removeReservation(ExhibitionStatut $reservations): self
     {
-        if ($this->exhibitionStatuts->removeElement($reservations)) {
+        if ($this->statuts->removeElement($reservations)) {
             // set the owning side to null (unless already changed)
             if ($reservations->getExhibition() === $this) {
                 $reservations->setExhibition(null);

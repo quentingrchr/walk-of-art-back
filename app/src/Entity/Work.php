@@ -15,13 +15,24 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: WorkRepository::class)]
 #[ApiResource(
     collectionOperations: [
-        'get',
+        'get' => [
+            'normalization_context' => [
+                'groups' => ['read:Work:collection','read:Work:item',
+                    'read:Exhibition:Work','read:Reservation:collection',
+                    /*'read:Board',*/'read:User'
+                ],
+                'enable_max_depth' => true
+            ]
+        ],
         'post',
     ],
     itemOperations: [
         'get' => [
             'normalization_context' => [
-                'groups' => ['read:Work:collection','read:Work:item','read:User','read:Exhibition:collection'],
+                'groups' => ['read:Work:collection','read:Work:item',
+                    'read:Exhibition:collection','read:Reservation:collection',
+                    'read:Board','read:Gallery:collection',
+                    'read:User'],
                 'enable_max_depth' => true
             ]
         ],
@@ -74,38 +85,36 @@ class Work implements UserOwnedInterface
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['read:Work:collection', 'write:Work'])]
+    #[Groups(['read:Work:collection','write:Work'])]
     private $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['read:Work:collection', 'write:Work'])]
+    #[Groups(['read:Work:item','write:Work'])]
     private $description;
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read:Work:item'])]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'], inversedBy: 'works')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-//    #[Groups(['read:Work:item'])]
-//    #[MaxDepth(1)]
     private $user;
 
     #[ORM\OneToOne(targetEntity: WorkFiles::class, cascade: ['remove'])]
-    #[Groups(['read:Work:collection', 'write:Work'])]
-    #[MaxDepth(1)]
+    #[Groups(['read:Work:collection'])]
+//    #[MaxDepth(1)]
     private $mainFile;
 
     #[ORM\OneToMany(mappedBy: 'work', targetEntity: WorkFiles::class, orphanRemoval: true)]
-    #[Groups(['read:Work:item', 'write:Work'])]
-    #[MaxDepth(1)]
+    #[Groups(['read:Work:item'])]
+//    #[MaxDeptch(1)]
     private $workFiles;
 
     #[ORM\OneToMany(mappedBy: 'work', targetEntity: Exhibition::class)]
     #[Groups(['read:Work:item'])]
     #[MaxDepth(1)]
     private $exhibitions;
-    
+
     public function __construct()
     {
         $this->workFiles = new ArrayCollection();

@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\PostWorkFilesController;
 use App\Repository\WorkFilesRepository;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -42,7 +41,7 @@ class WorkFiles
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Work::class, cascade: ['persist', 'remove'], inversedBy: 'work_files')]
+    #[ORM\ManyToOne(targetEntity: Work::class, inversedBy: 'workFiles')]
     #[ORM\JoinColumn(nullable: false)]
     private $work;
 
