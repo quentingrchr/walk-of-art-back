@@ -34,7 +34,7 @@ use Doctrine\ORM\Mapping as ORM;
                                 'type'       => 'object',
                                 'properties' =>
                                     [
-                                        'dateDtart'    => ['type' => 'string'],
+                                        'dateStart'    => ['type' => 'string'],
                                         'dateEnd'      => ['type' => 'string'],
                                         'orientation'   => ['type' => 'string'],
                                     ],

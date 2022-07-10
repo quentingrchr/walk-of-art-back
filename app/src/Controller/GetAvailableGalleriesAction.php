@@ -20,12 +20,6 @@ class GetAvailableGalleriesAction extends AbstractController
             throw new \RuntimeException('No parameters send.');
         }
 
-        $gallery = $this->galleryRepository->FindByParams($params);
-
-        if (empty($gallery)){
-            throw new \RuntimeException('No gallery found.');
-        }
-
-        return $gallery;
+        return $this->galleryRepository->findAvailableGalleriesByParams($params);
     }
 }

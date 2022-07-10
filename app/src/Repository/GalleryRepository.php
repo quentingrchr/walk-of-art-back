@@ -22,7 +22,7 @@ class GalleryRepository extends ServiceEntityRepository
         parent::__construct($registry, Gallery::class);
     }
 
-    public function findByParams($params)
+    public function findAvailableGalleriesByParams($params)
     {
         $entityManager = $this->getEntityManager();
 
@@ -31,15 +31,14 @@ class GalleryRepository extends ServiceEntityRepository
 
         $query = $entityManager->createQuery(
             '
-                SELECT g
-                FROM App\Entity\Gallery g, App\Entity\Board b, App\Entity\Reservation r
-                where g.id = b.gallery
-                AND (r.board = b.id or r.board IS NULL)
-                AND (r.dateEnd < :dateStart or r.dateStart > :dateEnd)
-                AND :dateDiff <= g.maxDays
-                AND :orientation = b.orientation
-                GROUP by g.id
-                '
+        SELECT g
+        FROM App\Entity\Gallery g, App\Entity\Board b, App\Entity\Reservation r
+        where g.id = b.gallery
+        AND ((r.board = b.id and (r.dateEnd < :dateStart or r.dateStart > :dateEnd)) or r.board IS NULL)
+        AND :dateDiff <= g.maxDays
+        AND :orientation = b.orientation
+        GROUP by g.id
+        '
         )->setParameters([
             'dateStart' => $dateStart,
             'dateEnd' => $dateEnd,
