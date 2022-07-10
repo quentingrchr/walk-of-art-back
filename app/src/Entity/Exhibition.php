@@ -36,7 +36,8 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     denormalizationContext: ['groups' => ['write:Exhibition']],
     normalizationContext: ['groups' => [
-        'read:Exhibition:collection'
+        'read:Exhibition:collection',
+        'read:Exhibition:item'
     ]],
 )]
 class Exhibition implements UserOwnedInterface
@@ -76,7 +77,7 @@ class Exhibition implements UserOwnedInterface
     private $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'exhibition', cascade: ['persist'], targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
-    #[Groups(['read:Exhibition:item'/*,'read:Exhibition:Work'*/])] // WARNING :: pas besoin pour les work
+    #[Groups(['read:Exhibition:item'])]
     private $statuts;
 
     #[ORM\ManyToOne(targetEntity: Work::class, inversedBy: 'exhibitions')]
@@ -86,23 +87,37 @@ class Exhibition implements UserOwnedInterface
 
     #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: Reservation::class, orphanRemoval: true)]
     #[Groups(['read:Exhibition:collection','read:Exhibition:Work'])]
-//    #[MaxDepth(1)]
     private $reservations;
 
-//    #[ORM\Column(type: 'json', nullable: true)]
-//    #[ApiProperty(attributes: [
-//        "openapi_context" => [
-//            "type" => "array",
-//            "items" => ["type" => "integer"]
-//        ],
-//        "json_schema_context" => [ // <- MAGIC IS HERE, you can override the json_schema_context here.
-//            "type" => "array",
-//            "items" => ["type" => "integer"]
-//        ]
-//    ])]
-//    private $snapshot = [];
-
-    // TODO :: Snapshot(array{name,url})
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[ApiProperty(attributes: [
+        "openapi_context" => [
+            "type" => "array",
+            "items" => [
+                'type' => 'object',
+                'properties' => [
+                    'name' => [
+                        'type' => 'string',
+                    ],
+                    'url' => [
+                        'type' => 'string',
+                    ]
+                ]
+            ],
+            "example" => '[
+                {
+                    "name": "facebook",
+                    "url": "https://facebook.com/"
+                },
+                {
+                    "name": "tipeee",
+                    "url": "https://fr.tipeee.com/"
+                }
+            ]'
+        ]
+    ])]
+    #[Groups(['read:Exhibition:item','write:Exhibition'])]
+    private $snapshot;
 
     public function __construct()
     {
@@ -220,18 +235,6 @@ class Exhibition implements UserOwnedInterface
         return $this;
     }
 
-/*    public function removeExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
-    {
-        if ($this->statuts->removeElement($exhibitionStatut)) {
-            // set the owning side to null (unless already changed)
-            if ($exhibitionStatut->getExhibition() === $this) {
-                $exhibitionStatut->setExhibition(null);
-            }
-        }
-
-        return $this;
-    }*/
-
     public function getWork(): ?Work
     {
         return $this->work;
@@ -274,15 +277,15 @@ class Exhibition implements UserOwnedInterface
         return $this;
     }
 
-//    public function getSnapshot(): ?array
-//    {
-//        return $this->snapshot;
-//    }
-//
-//    public function setSnapshot(?array $snapshot): self
-//    {
-//        $this->snapshot = $snapshot;
-//
-//        return $this;
-//    }
+    public function getSnapshot(): ?array
+    {
+        return $this->snapshot;
+    }
+
+    public function setSnapshot(?array $snapshot): self
+    {
+        $this->snapshot = $snapshot;
+
+        return $this;
+    }
 }

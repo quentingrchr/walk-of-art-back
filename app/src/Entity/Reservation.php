@@ -58,8 +58,6 @@ class Reservation
     #[Groups(['read:Reservation:collection'])]
     private $board;
 
-    // TODO :: gérer orientation
-
     public function __construct()
     {
         $this->setCreatedAt(new \DateTime('now'));
