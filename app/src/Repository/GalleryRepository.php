@@ -26,27 +26,42 @@ class GalleryRepository extends ServiceEntityRepository
     {
         $entityManager = $this->getEntityManager();
 
-        $dateStart = new DateTime($params['dateStart']);
-        $dateEnd = new DateTime($params['dateEnd']);
+        $dateStartDiff = new DateTime($params['dateStart']);
+        $dateEndDiff = new DateTime($params['dateEnd']);
+
+        /*dump($params['dateStart'],$params['dateEnd'], $dateEnd->diff($dateStart)->format("%a"), $params['orientation']);
+        die;*/
 
         $query = $entityManager->createQuery(
             '
         SELECT g
-        FROM App\Entity\Gallery g, App\Entity\Board b, App\Entity\Reservation r
-        where g.id = b.gallery
-        AND ((r.board = b.id and (r.dateEnd < :dateStart or r.dateStart > :dateEnd)) or r.board IS NULL)
-        AND :dateDiff <= g.maxDays
+        FROM App\Entity\Gallery g, App\Entity\Board b
+        LEFT JOIN App\Entity\Exhibition e WITH b.id = e.board
+        WHERE g.id = b.gallery        
         AND :orientation = b.orientation
-        GROUP by g.id
+        AND :dateDiff <= g.maxDays
+        AND e.board IS null         
+        OR (
+            g.id = b.gallery
+            AND :dateDiff <= g.maxDays 
+            AND :orientation = b.orientation 
+            AND e.board = b.id 
+            AND (e.dateStart NOT BETWEEN :dateStart and :dateEnd) 
+            AND (e.dateEnd NOT BETWEEN :dateStart and :dateEnd)
+        )
+        GROUP BY g
         '
         )->setParameters([
-            'dateStart' => $dateStart,
-            'dateEnd' => $dateEnd,
-            'dateDiff' => $dateEnd->diff($dateStart)->format("%a"),
-            'orientation' => $params['orientation']
+            'dateStart' => $params['dateStart'],
+            'dateEnd' => $params['dateEnd'],
+            'dateDiff' => intval($dateStartDiff->diff($dateEndDiff)->format("%a")),
+            'orientation' => $params['orientation'],
         ]);
 
         return $query->getResult();
+
+        /*AND (:dateStart NOT BETWEEN e.dateStart and e.dateEnd)
+        AND (:dateEnd NOT BETWEEN e.dateStart and e.dateEnd)*/
 
         // Sql Query used :
 
