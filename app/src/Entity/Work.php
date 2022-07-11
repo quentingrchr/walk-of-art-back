@@ -4,13 +4,16 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\PostWorkFilesController;
+use App\Controller\PutWorkUpdatedAtAction;
 use App\Repository\WorkRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: WorkRepository::class)]
 #[ApiResource(
@@ -67,6 +70,9 @@ use Doctrine\ORM\Mapping as ORM;
             ]
         ],
         'put' => [
+            'method' => 'PUT',
+            'path' => '/works/{id}',
+            'controller' => PutWorkUpdatedAtAction::class,
             'denormalization_context' => ['groups' => ['write:Work']],
 //            'normalization_context' => ['groups' => ['read:Work:collection','read:Work:item','read:User']],
         ],
@@ -95,6 +101,10 @@ class Work implements UserOwnedInterface
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read:Work:item'])]
     private $createdAt;
+
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['read:Work:collection', 'read:Work:item', 'write:Work'])]
+    private $updatedAt;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -150,7 +160,7 @@ class Work implements UserOwnedInterface
 
         return $this;
     }
-    
+
     public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
@@ -160,6 +170,16 @@ class Work implements UserOwnedInterface
     {
         $this->createdAt = $createdAt;
 
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(\DateTime $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
@@ -245,5 +265,11 @@ class Work implements UserOwnedInterface
         }
 
         return $this;
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate()
+    {
+        $this->updatedAt = new \DateTime("now");
     }
 }
