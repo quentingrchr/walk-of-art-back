@@ -16,8 +16,12 @@ class GetAvailableGalleriesAction extends AbstractController
     {
         $params = json_decode($request->getContent(), true);
 
-        if (is_null($params)){
+        if (is_null($params)) {
             throw new \RuntimeException('No parameters send.');
+        }
+
+        if($params['dateStart']  > ($params['dateEnd'])) {
+            throw new \RuntimeException('Start date more recent than End date.');
         }
 
         return $this->galleryRepository->findAvailableGalleriesByParams($params);
