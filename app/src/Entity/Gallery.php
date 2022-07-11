@@ -179,16 +179,4 @@ class Gallery
 
         return $this;
     }
-
-    public function removeReservation(Reservation $reservation): self
-    {
-        if ($this->reservations->removeElement($reservation)) {
-            // set the owning side to null (unless already changed)
-            if ($reservation->getGallery() === $this) {
-                $reservation->setGallery(null);
-            }
-        }
-
-        return $this;
-    }
 }
