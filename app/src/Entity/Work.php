@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'normalization_context' => [
                 'groups' => ['read:Work:collection','read:Work:item',
-                    'read:Exhibition:Work','read:Reservation:collection',
+                    'read:Exhibition:Work',
                     /*'read:Board',*/'read:User'
                 ],
                 'enable_max_depth' => true
@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'normalization_context' => [
                 'groups' => ['read:Work:collection','read:Work:item',
-                    'read:Exhibition:collection','read:Reservation:collection',
+                    'read:Exhibition:collection',
                     'read:Board','read:Gallery:collection',
                     'read:User'],
                 'enable_max_depth' => true

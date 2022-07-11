@@ -18,7 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'normalization_context' => ['groups' => [
                 'read:Exhibition:collection','read:Work:collection',
-                'read:Reservation:collection',/*'read:Board','read:Gallery:collection',*/
                 'read:User'
             ]],
         ],
@@ -28,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'normalization_context' => ['groups' => [
                 'read:Exhibition:collection','read:Exhibition:item','read:Work:collection',
-                'read:Reservation:collection','read:User'
+                'read:Board','read:Gallery:collection','read:User'
             ]]
         ],
         'put',
@@ -57,6 +56,14 @@ class Exhibition implements UserOwnedInterface
     #[Groups(['read:Exhibition:item','write:Exhibition'])]
     private $description;
 
+    #[ORM\Column(type: 'date')]
+    #[Groups(['read:Exhibition:collection','write:Exhibition'])]
+    private $dateStart;
+
+    #[ORM\Column(type: 'date')]
+    #[Groups(['read:Exhibition:collection','write:Exhibition'])]
+    private $dateEnd;
+
     #[ORM\Column(type: 'boolean')]
     #[Groups(['read:Exhibition:item'])] //,'write:Exhibition'])] // INFO:: True obligatoire
     private $reaction;
@@ -73,10 +80,10 @@ class Exhibition implements UserOwnedInterface
     private $user;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:Work:collection'])]
+    #[Groups(['read:Exhibition:collection'])]
     private $createdAt;
 
-    #[ORM\OneToMany(mappedBy: 'exhibition', cascade: ['persist'], targetEntity: ExhibitionStatut::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['read:Exhibition:item'])]
     private $statuts;
 
@@ -85,9 +92,9 @@ class Exhibition implements UserOwnedInterface
     #[Groups(['read:Exhibition:collection','write:Exhibition'])]
     private $work;
 
-    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: Reservation::class, orphanRemoval: true)]
-    #[Groups(['read:Exhibition:collection','read:Exhibition:Work'])]
-    private $reservations;
+    #[ORM\ManyToOne(targetEntity: Board::class)]
+    #[Groups(['read:Exhibition:collection'])]
+    private $board;
 
     #[ORM\Column(type: 'json', nullable: true)]
     #[ApiProperty(attributes: [
@@ -122,7 +129,6 @@ class Exhibition implements UserOwnedInterface
     public function __construct()
     {
         $this->statuts = new ArrayCollection();
-        $this->reservations = new ArrayCollection();
         $this->setReaction(true);
         $this->setCreatedAt(new \DateTime('now'));
 //        $this->addExhibitionStatut((new ExhibitionStatut())->setStatus(StatusEnum::PENDING)->setDescription('Creation of the exhibition')->setExhibition($this));
@@ -165,6 +171,30 @@ class Exhibition implements UserOwnedInterface
     public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getDateStart(): ?\DateTimeInterface
+    {
+        return $this->dateStart;
+    }
+
+    public function setDateStart(\DateTimeInterface $dateStart): self
+    {
+        $this->dateStart = $dateStart;
+
+        return $this;
+    }
+
+    public function getDateEnd(): ?\DateTimeInterface
+    {
+        return $this->dateEnd;
+    }
+
+    public function setDateEnd(\DateTimeInterface $dateEnd): self
+    {
+        $this->dateEnd = $dateEnd;
 
         return $this;
     }
@@ -247,36 +277,6 @@ class Exhibition implements UserOwnedInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Reservation>
-     */
-    public function getReservations(): Collection
-    {
-        return $this->reservations;
-    }
-
-    public function addReservation(ExhibitionStatut $reservations): self
-    {
-        if (!$this->reservations->contains($reservations)) {
-            $this->reservations[] = $reservations;
-            $reservations->setExhibition($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReservation(ExhibitionStatut $reservations): self
-    {
-        if ($this->statuts->removeElement($reservations)) {
-            // set the owning side to null (unless already changed)
-            if ($reservations->getExhibition() === $this) {
-                $reservations->setExhibition(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getSnapshot(): ?array
     {
         return $this->snapshot;
@@ -285,6 +285,18 @@ class Exhibition implements UserOwnedInterface
     public function setSnapshot(?array $snapshot): self
     {
         $this->snapshot = $snapshot;
+
+        return $this;
+    }
+
+    public function getBoard(): ?Board
+    {
+        return $this->board;
+    }
+
+    public function setBoard(?Board $board): self
+    {
+        $this->board = $board;
 
         return $this;
     }

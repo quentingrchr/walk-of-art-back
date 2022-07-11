@@ -51,7 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     private $urlFacebook;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $urlTwitter;
+    private $urlInstagram;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $urlPersonalWebsite;
@@ -198,14 +198,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         return $this;
     }
 
-    public function getUrlTwitter(): ?string
+    public function getUrlInstagram(): ?string
     {
-        return $this->urlTwitter;
+        return $this->urlInstagram;
     }
 
-    public function setUrlTwitter(?string $urlTwitter): self
+    public function setUrlInstagram(?string $urlInstagram): self
     {
-        $this->urlTwitter = $urlTwitter;
+        $this->urlInstagram = $urlInstagram;
 
         return $this;
     }
