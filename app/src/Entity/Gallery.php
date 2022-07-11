@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
+use App\Config\OrientationEnum;
 
 #[ORM\Entity(repositoryClass: GalleryRepository::class)]
 #[ApiResource(
@@ -36,7 +37,7 @@ use Doctrine\ORM\Mapping as ORM;
                                     [
                                         'dateStart'    => ['type' => 'string'],
                                         'dateEnd'      => ['type' => 'string'],
-                                        'orientation'   => ['type' => 'string'],
+                                        'orientation'   => OrientationEnum::CASES,
                                     ],
                             ],
                             'example' => [
