@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetAvailableGalleriesAction;
 use App\Repository\GalleryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
+use App\Config\OrientationEnum;
 
 #[ORM\Entity(repositoryClass: GalleryRepository::class)]
 #[ApiResource(
@@ -18,7 +20,37 @@ use Doctrine\ORM\Mapping as ORM;
         'post' => [
             'denormalization_context' => ['groups' => ['write:Gallery']],
             'normalization_context' => ['groups' => ['read:Gallery:collection','read:Gallery:item','read:Board']],
-        ]
+        ],
+        'get_available_galleries' => [
+            'method' => 'POST',
+            'path' => '/galleries/available',
+            'deserialize' => false,
+            'controller' => GetAvailableGalleriesAction::class,
+            'openapi_context' => [
+                'summary' => "Get all galleries that have board dates and orientation available",
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema'  => [
+                                'type'       => 'object',
+                                'properties' =>
+                                    [
+                                        'dateStart'    => ['type' => 'string'],
+                                        'dateEnd'      => ['type' => 'string'],
+                                        'orientation'   => OrientationEnum::class,
+                                    ],
+                            ],
+                            'example' => [
+                                "dateStart"    => "2022-07-09",
+                                "dateEnd"      => "2022-07-11",
+                                "orientation"   => "vertical"
+                            ],
+                        ],
+                    ]
+                ]
+            ],
+            'normalization_context' => ['groups' => ['read:Gallery:collection', 'read:Gallery:items']]
+        ],
     ],
     itemOperations: [
         'get' => [
