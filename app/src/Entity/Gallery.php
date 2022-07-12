@@ -22,7 +22,7 @@ use App\Config\OrientationEnum;
             'normalization_context' => ['groups' => ['read:Gallery:collection','read:Gallery:item','read:Board']],
         ],
         'get_available_galleries' => [
-            'method' => 'POST',
+            'method' => 'GET',
             'path' => '/galleries/available',
             'deserialize' => false,
             'controller' => GetAvailableGalleriesAction::class,
