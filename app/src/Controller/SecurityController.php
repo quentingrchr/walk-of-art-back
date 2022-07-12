@@ -51,7 +51,7 @@ class SecurityController extends AbstractController {
         $jsonData['Roles'] = ['ROLE_ARTIST'];
         $user = $this->userRepository->create($jsonData);
 
-        $this->emailSender->emailSender($user);
+        $this->emailSender->emailSender(['user' => $user]);
 
         return new JsonResponse(
             json_decode($this->serializer->serialize($user, 'json')),

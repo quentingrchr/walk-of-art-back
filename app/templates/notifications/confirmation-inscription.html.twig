@@ -9,6 +9,7 @@
   <!--<![endif]-->
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% apply inline_css %}
   <style type="text/css">
     #outlook a {
       padding: 0;
@@ -118,6 +119,7 @@
       font-size: 12px;
     }
   </style>
+  {% endapply %}
 </head>
 
 <body style="word-spacing:normal;">
@@ -267,7 +269,7 @@
                       <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                         <div
                           style="font-family:Inter, sans-serif;font-size:32px;font-weight:700;line-height:100%;text-align:center;color:#FFFFFF;">
-                          Bienvenue dans l'aventure [[data:prénom:""]] !</div>
+                          Bienvenue dans l'aventure {{ data.user.firstName }} !</div>
                       </td>
                     </tr>
                     <tr>
@@ -380,7 +382,7 @@
                                   <div
                                     style="font-family:Inter, sans-serif;font-size:16px;font-weight:400;line-height:140%;text-align:left;color:#FFFFFF;">
                                     Amaury<br>
-                                    <span>Chargé de relation clients<span>
+                                    <span>Chargé de relation clients</span>
                                   </div>
                                 </td>
                               </tr>

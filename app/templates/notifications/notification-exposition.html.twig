@@ -9,6 +9,7 @@
   <!--<![endif]-->
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% apply inline_css %}
   <style type="text/css">
     #outlook a {
       padding: 0;
@@ -118,6 +119,7 @@
       font-size: 12px;
     }
   </style>
+  {% endapply %}
 </head>
 
 <body style="word-spacing:normal;">
@@ -267,12 +269,12 @@
                       <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                         <div
                           style="font-family:Inter, sans-serif;font-size:32px;font-weight:700;line-height:100%;text-align:center;color:#FFFFFF;">
-                          Ton exposition a été validée ! 🥳
-                          <!-- CONTENT 2 - REFUS -->
-                          <!-- 
-            refusée 😔
-          -->
-                          <!-- CONTENT 2 - REFUS -->
+                            Ton exposition a été
+                          {% if data.exhibitionStatus.status is constant('App\\Config\\StatusEnum::VALIDATED') %}
+                            validée ! 🥳
+                          {% else %}
+                            refusée 😔
+                          {% endif %}
                         </div>
                       </td>
                     </tr>
@@ -280,31 +282,29 @@
                       <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                         <div
                           style="font-family:Inter, sans-serif;font-size:16px;font-weight:200;line-height:140%;text-align:center;color:#FFFFFF;">
-                          Nous sommes très contents de t'annoncer que ton exposition <b>"[TITRE DE L'EXPOSITION]"</b> a
-                          été validée par nos médorateurs.<br><br> Cette exposition respectera les dates que tu as
-                          mentionné et sera visible sur le panneau que tu as sélectionné.<br><br> Tu pourras retrouver
-                          cette expositions dans <b>"Mes Expositions"</b> et en cochant le filtre
-                          <b>"Validées"</b><br><br> Si tu as des questions complémentaires n'hesites pas à nous envoyer
-                          un mail à <a href='mailto:thomas.ceglie@hetic.net'>contact@walkofart.com</a>.
-                          <!-- CONTENT 2 - REFUS -->
-                          <!--
-            Nous sommes dans le regret de ne pas pouvoir publier ton exposition <b>"[TITRE DE L'EXPOSITION]"</b><br><br>
+                          {% if data.exhibitionStatus.status is constant('App\\Config\\StatusEnum::VALIDATED') %}
+                            Nous sommes très contents de t'annoncer que ton exposition <b>"{{ data.exhibition.title }}"</b> a
+                            été validée par nos médorateurs.<br><br> Cette exposition respectera les dates que tu as
+                            mentionné et sera visible sur le panneau que tu as sélectionné.<br><br> Tu pourras retrouver                                                                                                                                                                                                cette expositions dans <b>"Mes Expositions"</b> et en cochant le filtre
+                            <b>"Validées"</b><br><br> Si tu as des questions complémentaires n'hesites pas à nous envoyer
+                            un mail à <a href='mailto:thomas.ceglie@hetic.net'>contact@walkofart.com</a>.
+                          {% else %}
+                            Nous sommes dans le regret de ne pas pouvoir publier ton exposition <b>"{{ data.exhibition.title }}"</b><br><br>
 
-          En effet, nos modérateurs ont jugé que cette exposition ne respectait pas notre charte de publication.<br><br>
+                            En effet, nos modérateurs ont jugé que cette exposition ne respectait pas notre charte de publication.<br><br>
 
-          Ne t'inquiètes pas car tu vas pouvoir très vite re-tenter de publier cette exposition ! Pour t'aider nous t'avons mis à disposition le motif du modérateur et le commentaire s'il en a laissé un :<br><br>
+                            Ne t'inquiètes pas car tu vas pouvoir très vite re-tenter de publier cette exposition ! Pour t'aider nous t'avons mis à disposition le motif du modérateur et le commentaire s'il en a laissé un :<br><br>
 
-          <b>MOTIF :</b>
-          [Ici le motif du refus]<br><br>
+                            <b>MOTIF :</b>
+                            {{ data.exhibitionStatus.description }}<br><br>
 
-          <b>COMMENTAIRE :</b>
-          [Ici le commentaire du refus ou /]<br><br>
+                            {#<b>COMMENTAIRE :</b>
+                            [Ici le commentaire du refus ou /]<br><br>#}
 
-          Tu verras une notification s'ajouter pour te dire que cette exposition a été refusée, et tu pourras aussi retrouver cette exposition dans la rubrique <b>"Mes Expositions"</b> et en cochant le filtre <b>"Refusées"</b><br><br>
+                            Tu verras une notification s'ajouter pour te dire que cette exposition a été refusée, et tu pourras aussi retrouver cette exposition dans la rubrique <b>"Mes Expositions"</b> et en cochant le filtre <b>"Refusées"</b><br><br>
 
-          Si tu as des questions complémentaires n'hesites pas à nous envoyer un mail à <a href='mailto:thomas.ceglie@hetic.net'>contact@walkofart.com</a>.
-          -->
-                          <!-- CONTENT 2 - REFUS -->
+                            Si tu as des questions complémentaires n'hesites pas à nous envoyer un mail à <a href='mailto:thomas.ceglie@hetic.net'>contact@walkofart.com</a>.
+                          {% endif %}
                         </div>
                       </td>
                     </tr>
