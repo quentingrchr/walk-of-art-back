@@ -35,15 +35,15 @@ use App\Config\OrientationEnum;
                                 'type'       => 'object',
                                 'properties' =>
                                     [
-                                        'dateStart'    => ['type' => 'string'],
-                                        'dateEnd'      => ['type' => 'string'],
+                                        'dateStart'    => ['type' => 'date'],
+                                        'dateEnd'      => ['type' => 'date'],
                                         'orientation'   => OrientationEnum::class,
                                     ],
                             ],
                             'example' => [
                                 "dateStart"    => "2022-07-09",
                                 "dateEnd"      => "2022-07-11",
-                                "orientation"   => "vertical"
+                                "orientation"   => "portrait"
                             ],
                         ],
                     ]

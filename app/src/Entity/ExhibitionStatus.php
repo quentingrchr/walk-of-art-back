@@ -8,7 +8,7 @@ use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExhibitionStatutRepository::class)]
-class ExhibitionStatut implements UserOwnedInterface
+class ExhibitionStatus implements UserOwnedInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
@@ -25,7 +25,7 @@ class ExhibitionStatut implements UserOwnedInterface
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Exhibition::class, inversedBy: 'statuts')]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class, inversedBy: 'statutes')]
     #[ORM\JoinColumn(nullable: false)]
     private $exhibition;
 

@@ -4,7 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Config\StatusEnum;
+use App\Config\OrientationEnum;
+use App\Controller\PostExhibitionAction;
 use App\Repository\ExhibitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -21,7 +22,9 @@ use Doctrine\ORM\Mapping as ORM;
                 'read:User'
             ]],
         ],
-        'post',
+        'post' => [
+            'controller' => PostExhibitionAction::class,
+        ],
     ],
     itemOperations: [
         'get' => [
@@ -83,9 +86,9 @@ class Exhibition implements UserOwnedInterface
     #[Groups(['read:Exhibition:collection'])]
     private $createdAt;
 
-    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatut::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatus::class, cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['read:Exhibition:item'])]
-    private $statuts;
+    private $statutes;
 
     #[ORM\ManyToOne(targetEntity: Work::class, inversedBy: 'exhibitions')]
     #[ORM\JoinColumn(nullable: false)]
@@ -126,9 +129,29 @@ class Exhibition implements UserOwnedInterface
     #[Groups(['read:Exhibition:item','write:Exhibition'])]
     private $snapshot;
 
+    #[ApiProperty(writable: true,
+        attributes: [
+            "openapi_context" => [
+                "type" => OrientationEnum::class,
+                "example" => "portrait"
+            ]
+        ])]
+    #[Groups(['write:Exhibition'])]
+    private $orientation;
+
+    #[ApiProperty(writable: true,
+        attributes: [
+        "openapi_context" => [
+            "type" => "string",
+            "example" => "gallery uuid"
+        ]
+    ])]
+    #[Groups(['write:Exhibition'])]
+    private $gallery;
+
     public function __construct()
     {
-        $this->statuts = new ArrayCollection();
+        $this->statutes = new ArrayCollection();
         $this->setReaction(true);
         $this->setCreatedAt(new \DateTime('now'));
 //        $this->addExhibitionStatut((new ExhibitionStatut())->setStatus(StatusEnum::PENDING)->setDescription('Creation of the exhibition')->setExhibition($this));
@@ -248,17 +271,17 @@ class Exhibition implements UserOwnedInterface
     }
 
     /**
-     * @return Collection<int, ExhibitionStatut>
+     * @return Collection<int, ExhibitionStatus>
      */
-    public function getStatuts(): Collection
+    public function getStatutes(): Collection
     {
-        return $this->statuts;
+        return $this->statutes;
     }
 
-    public function addExhibitionStatut(ExhibitionStatut $exhibitionStatut): self
+    public function addExhibitionStatut(ExhibitionStatus $exhibitionStatut): self
     {
-        if (!$this->statuts->contains($exhibitionStatut)) {
-            $this->statuts[] = $exhibitionStatut;
+        if (!$this->statutes->contains($exhibitionStatut)) {
+            $this->statutes[] = $exhibitionStatut;
             $exhibitionStatut->setExhibition($this);
         }
 

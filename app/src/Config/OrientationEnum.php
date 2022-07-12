@@ -4,6 +4,6 @@ namespace App\Config;
 
 enum OrientationEnum: string
 {
-    case HORIZONTAL = 'horizontal';
-    case VERTICAL = 'vertical';
+    case LANDSCAPE = 'landscape';
+    case PORTRAIT = 'portrait';
 }
