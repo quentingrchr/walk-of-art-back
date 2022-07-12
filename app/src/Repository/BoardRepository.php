@@ -19,32 +19,37 @@ class BoardRepository extends ServiceEntityRepository
         parent::__construct($registry, Board::class);
     }
 
-    // /**
-    //  * @return Board[] Returns an array of Board objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * Return first board available by gallery, dates, and orientation
+     *
+     * @return Board|null Returns Board objects
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getBoardAvailableByGalleryByParam(string $galleryId, \DateTime $dateStart, \DateTime $dateEnd, string $orientation): ?Board
     {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('b.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $query = $this->_em->createQuery('
+                SELECT b
+                FROM App\Entity\Board b
+                LEFT JOIN App\Entity\Gallery g WITH g.id = b.gallery
+                LEFT JOIN App\Entity\Exhibition e WITH e.board = b.id
+                WHERE b.id NOT IN (
+                    SELECT IDENTITY(ee.board)
+                    FROM App\Entity\Exhibition ee
+                    WHERE e.dateStart < :dateEnd OR e.dateEnd > :dateStart
+                )
+                AND b.gallery = :galleryId
+                AND b.orientation  = :orientation
+                AND g.maxDays  >= :dateInterval
+            ')
+            ->setParameters([
+                'galleryId' => $galleryId,
+                'orientation' => $orientation,
+                'dateInterval' => $dateStart->setTime(0,0)->diff($dateEnd->setTime(0,0))->format('%a'),
+                'dateStart' => $dateStart->format('Y-m-d'),
+                'dateEnd' => $dateEnd->format('Y-m-d')])
+            ->setMaxResults(1);
 
-    /*
-    public function findOneBySomeField($value): ?Board
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $query->getOneOrNullResult();
     }
-    */
+
 }

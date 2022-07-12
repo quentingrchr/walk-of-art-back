@@ -8,12 +8,10 @@ use App\Controller\PutWorkUpdatedAtAction;
 use App\Repository\WorkRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: WorkRepository::class)]
 #[ApiResource(
@@ -103,7 +101,7 @@ class Work implements UserOwnedInterface
     private $createdAt;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:Work:collection', 'read:Work:item', 'write:Work'])]
+    #[Groups(['read:Work:collection', 'read:Work:item'])]
     private $updatedAt;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -265,11 +263,5 @@ class Work implements UserOwnedInterface
         }
 
         return $this;
-    }
-
-    #[ORM\PreUpdate]
-    public function onPreUpdate()
-    {
-        $this->updatedAt = new \DateTime("now");
     }
 }
