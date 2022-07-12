@@ -13,10 +13,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 class SecurityController extends AbstractController {
 
     private UserRepository $userRepository;
+    private EmailSender $emailSender;
 
-    public function __construct(UserRepository $userRepository, private SerializerInterface $serializer)
+    public function __construct(UserRepository $userRepository, private SerializerInterface $serializer, EmailSender $emailSender)
     {
         $this->userRepository = $userRepository;
+        $this->emailSender = $emailSender;
     }
 
     #[Route(path: '/login_check', name: 'api.login', methods : ('POST'))]
@@ -48,6 +50,8 @@ class SecurityController extends AbstractController {
 
         $jsonData['Roles'] = ['ROLE_ARTIST'];
         $user = $this->userRepository->create($jsonData);
+
+        $this->emailSender->emailSender($user);
 
         return new JsonResponse(
             json_decode($this->serializer->serialize($user, 'json')),

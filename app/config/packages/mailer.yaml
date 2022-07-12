@@ -1,0 +1,9 @@
+framework:
+    mailer:
+        dsn: '%env(MAILER_DSN)%'
+        envelope:
+            sender: 'lucasperez.apple@gmail.com'
+            recipients: [ 'lucasperez.apple@gmail.com' ]
+        headers:
+            From: 'Support WOA <support@walkofart.com>'
+            X-Custom-Header: 'foobar'
