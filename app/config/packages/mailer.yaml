@@ -3,7 +3,6 @@ framework:
         dsn: '%env(MAILER_DSN)%'
         envelope:
             sender: 'contact@walkofart.com'
-            recipients: [ 'contact@walkofart.com' ]
         headers:
             From: 'Contact WOA <contact@walkofart.com>'
             X-Custom-Header: 'foobar'
