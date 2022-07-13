@@ -1,28 +1,60 @@
 <?php
 
-
 namespace App\Entity;
 
-
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetReactionsAction;
+use App\Controller\PostReactionAction;
+use App\Repository\ReactionRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ReactionRepository::class)]
 #[ApiResource(
     collectionOperations: [
         'get' => [
+            'method' => 'GET',
+            'path' => '/reactions/{boardId}',
+            'deserialize' => false,
+            "read" => false,
+            'controller' => GetReactionsAction::class,
             'normalization_context' => [
-                'groups' => ['read:Gallery:collection','read:Gallery:item','read:Board'],
-                'enable_max_depth' => true
+                'groups' => ['read:Reaction:collection'],
             ],
         ],
     ],
     itemOperations: [
+        'get',
         'post' => [
+            'method' => 'POST',
+            'path' => '/reactions/{boardId}',
+            'deserialize' => false,
+            "read" => false,
+            'controller' => PostReactionAction::class,
+            'openapi_context' => [
+                'summary' => "Post reaction",
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema'  => [
+                                'type'       => 'object',
+                                'properties' =>
+                                    [
+                                        'visitorId'   => ['type' => 'string'],
+                                        'reaction'  => ['type' => 'string'] /*ReactionEnum::class*/,
+                                    ],
+                            ],
+                            'example' => [
+                                "visitorId" => "khubvjlbjb",
+                                "reaction"   => "like"
+                            ],
+                        ],
+                    ]
+                ]
+            ],
             'normalization_context' => [
-                'groups' => ['read:Gallery:collection','read:Gallery:item','read:Board'],
-                'enable_max_depth' => true
+                'groups' => ['write:Reaction', 'read:Reaction:collection'],
             ],
         ],
     ],
@@ -44,12 +76,11 @@ class Reaction
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Work::class)]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['write:Reaction'])]
-    private $work;
+    private $exhibition;
 
-    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\Column(type: "string", unique: false)]
     #[Groups(['write:Reaction'])]
     private $visitor;
 
@@ -57,83 +88,56 @@ class Reaction
         $this->setCreatedAt(new \DateTime('now'));
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $id
-     */
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getReaction()
+    public function getReaction(): ?string
     {
         return $this->reaction;
     }
 
-    /**
-     * @param mixed $reaction
-     */
-    public function setReaction($reaction): void
+    public function setReaction(?string $reaction): self
     {
         $this->reaction = $reaction;
+
+        return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCreatedAt()
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param mixed $createdAt
-     */
-    public function setCreatedAt($createdAt): void
+    public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getWork()
+    public function getExhibition(): ?Exhibition
     {
-        return $this->work;
+        return $this->exhibition;
     }
 
-    /**
-     * @param mixed $work
-     */
-    public function setWork($work): void
+    public function setExhibition(?Exhibition $exhibition): self
     {
-        $this->work = $work;
+        $this->exhibition = $exhibition;
+
+        return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getVisitor()
+    public function getVisitor(): ?string
     {
         return $this->visitor;
     }
 
-    /**
-     * @param mixed $visitor
-     */
-    public function setVisitor($visitor): void
+    public function setVisitor(?string $visitor): self
     {
         $this->visitor = $visitor;
+
+        return $this;
     }
 }
