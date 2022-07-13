@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20220713185800 extends AbstractMigration
+final class Version20220713193355 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -25,6 +25,7 @@ final class Version20220713185800 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN reaction.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN reaction.exhibition_id IS \'(DC2Type:uuid)\'');
         $this->addSql('ALTER TABLE reaction ADD CONSTRAINT FK_A4D707F72A7D4494 FOREIGN KEY (exhibition_id) REFERENCES exhibition (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE exhibition DROP reaction');
     }
 
     public function down(Schema $schema): void
@@ -32,5 +33,6 @@ final class Version20220713185800 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP TABLE reaction');
+        $this->addSql('ALTER TABLE exhibition ADD reaction BOOLEAN NOT NULL');
     }
 }
