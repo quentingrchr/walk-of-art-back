@@ -34,8 +34,6 @@ class PostReactionAction
             ], status: Response::HTTP_GONE);
         }
 
-        $exhibition[0]->setReaction(true);
-
         $reaction->setExhibition($exhibition[0]);
         $reaction->setReaction($jsonData['reaction']);
         return $reaction->setVisitor($jsonData['visitorId']);

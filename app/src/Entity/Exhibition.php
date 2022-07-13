@@ -67,9 +67,9 @@ class Exhibition implements UserOwnedInterface
     #[Groups(['read:Exhibition:collection','write:Exhibition'])]
     private $dateEnd;
 
-    #[ORM\Column(type: 'boolean')]
-    #[Groups(['read:Exhibition:item'])] //,'write:Exhibition'])] // INFO:: True obligatoire
-    private $reaction;
+    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: Reaction::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true)]
+    private $reactions;
 
     #[ORM\Column(type: 'boolean')]
     #[Groups(['read:Exhibition:item','write:Exhibition'])]

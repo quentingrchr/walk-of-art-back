@@ -76,7 +76,7 @@ class Reaction
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Exhibition::class)]
+    #[ORM\ManyToOne(targetEntity: Exhibition::class, inversedBy: 'reactions')]
     #[ORM\JoinColumn(nullable: false)]
     private $exhibition;
 
