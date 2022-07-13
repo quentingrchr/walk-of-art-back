@@ -127,6 +127,7 @@ class Work implements UserOwnedInterface
     {
         $this->workFiles = new ArrayCollection();
         $this->setCreatedAt(new \DateTime('now'));
+        $this->setUpdatedAt(new \DateTime('now'));
         $this->exhibitions = new ArrayCollection();
     }
 
