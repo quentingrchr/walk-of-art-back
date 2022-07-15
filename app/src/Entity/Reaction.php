@@ -19,6 +19,29 @@ use Symfony\Component\Uid\Uuid;
             'deserialize' => false,
             "read" => false,
             'controller' => GetReactionsAction::class,
+            'openapi_context' => [
+                'summary' => "Get reaction",
+                'responses' => [
+                    '200' => [
+                        'content' => [
+                            'application/json' => [
+                                'schema'  => [
+                                    'type'       => 'array',
+                                    'properties' =>
+                                        [
+                                            'visitorId'   => ['type' => 'string'],
+                                            'reaction'  => ['type' => 'string'] /*ReactionEnum::class*/,
+                                        ],
+                                ],
+                                'example' => [
+                                    "visitorId" => "khubvjlbjb",
+                                    "reaction"   => "like"
+                                ],
+                            ],
+                        ]
+                    ],
+                ]
+            ],
             'normalization_context' => [
                 'groups' => ['read:Reaction:collection'],
             ],
