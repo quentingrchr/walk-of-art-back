@@ -76,6 +76,7 @@ use Doctrine\ORM\Mapping as ORM;
         ],
         'delete'
     ],
+
     denormalizationContext: ['groups' => ['write:Work']],
     normalizationContext: ['groups' => ['read:Work:collection']],
 )]

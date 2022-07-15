@@ -14,7 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method ExhibitionStatus[]    findAll()
  * @method ExhibitionStatus[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ExhibitionStatutRepository extends ServiceEntityRepository
+class ExhibitionStatusRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -46,7 +46,7 @@ class ExhibitionStatutRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return ExhibitionStatut[] Returns an array of ExhibitionStatut objects
+    //  * @return ExhibitionStatus[] Returns an array of ExhibitionStatus objects
     //  */
     /*
     public function findByExampleField($value)
@@ -63,7 +63,7 @@ class ExhibitionStatutRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?ExhibitionStatut
+    public function findOneBySomeField($value): ?ExhibitionStatus
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.exampleField = :val')

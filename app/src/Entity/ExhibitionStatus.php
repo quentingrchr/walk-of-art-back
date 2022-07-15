@@ -2,12 +2,22 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Config\OrientationEnum;
 use App\Config\StatusEnum;
-use App\Repository\ExhibitionStatutRepository;
+use App\Repository\ExhibitionStatusRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ExhibitionStatutRepository::class)]
+#[ORM\Entity(repositoryClass: ExhibitionStatusRepository::class)]
+#[ApiResource(
+    collectionOperations: [],
+    itemOperations: [
+        'get',
+    ],
+    normalizationContext: ['groups' => ['read:Exhibition:item']],
+)]
 class ExhibitionStatus implements UserOwnedInterface
 {
     #[ORM\Id]
@@ -17,9 +27,15 @@ class ExhibitionStatus implements UserOwnedInterface
     private $id;
 
     #[ORM\Column(type: 'string', enumType: StatusEnum::class)]
+    #[Groups(['read:Exhibition:item','write:ExhibitionStatus:modo'])]
     private $status;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['write:ExhibitionStatus:modo'])]
+    private $reason;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['write:ExhibitionStatus:modo'])]
     private $description;
 
     #[ORM\Column(type: 'datetime')]
@@ -51,6 +67,18 @@ class ExhibitionStatus implements UserOwnedInterface
     public function setStatus(StatusEnum $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getReason(): ?string
+    {
+        return $this->reason;
+    }
+
+    public function setReason(?string $reason): self
+    {
+        $this->reason = $reason;
 
         return $this;
     }
