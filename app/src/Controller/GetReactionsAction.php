@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Repository\ExhibitionRepository;
 use App\Repository\ReactionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[Route(path: '/api')]
 class GetReactionsAction
