@@ -20,7 +20,7 @@ use Symfony\Component\Uid\Uuid;
             "read" => false,
             'controller' => GetReactionsAction::class,
             'openapi_context' => [
-                'summary' => "Get reaction",
+                'summary' => "Counts the number of reactions on exhibition associated with the board",
                 'responses' => [
                     '200' => [
                         'content' => [
@@ -29,14 +29,17 @@ use Symfony\Component\Uid\Uuid;
                                     'type'       => 'array',
                                     'properties' =>
                                         [
-                                            'visitorId'   => ['type' => 'string'],
-                                            'reaction'  => ['type' => 'string'] /*ReactionEnum::class*/,
+                                            'reaction'  => ['type' => 'string'],
+                                            'count'   => ['type' => 'int']
                                         ],
                                 ],
-                                'example' => [
-                                    "visitorId" => "khubvjlbjb",
-                                    "reaction"   => "like"
-                                ],
+                                'example' => [[
+                                    "reaction"   => "like",
+                                    "count" => "35",
+                                ],[
+                                    "reaction"   => "fire",
+                                    "count" => "53",
+                                ]],
                             ],
                         ]
                     ],
