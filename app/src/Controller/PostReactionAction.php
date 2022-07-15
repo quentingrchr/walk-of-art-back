@@ -14,7 +14,7 @@ class PostReactionAction
 {
     public function __construct(private ExhibitionRepository $exhibitionRepository){}
 
-    public function __invoke(string $boardId, Request $request): Reaction|JsonResponse
+    public function __invoke(string $boardId, Request $request)
     {
         $jsonData = json_decode($request->getContent(), true);
 
@@ -36,8 +36,23 @@ class PostReactionAction
 
         $exhibition[0]->setReaction(true);
 
-        $reaction->setExhibition($exhibition[0]);
-        $reaction->setReaction($jsonData['reaction']);
-        return $reaction->setVisitor($jsonData['visitorId']);
+        $reactionCheck = 0;
+
+        if(!empty($exhibition[0]->getReactions())) {
+            foreach ($exhibition[0]->getReactions() as $exhibReaction) {
+                if($jsonData['visitorId'] === $exhibReaction->getVisitor()) {
+                    $reactionCheck = 1;
+
+                    $exhibReaction->setCreatedAt(new \DateTime('now'));
+                    return $exhibReaction->setReaction($jsonData['reaction']);
+                }
+            }
+        }
+
+        if($reactionCheck == 0) {
+            $reaction->setExhibition($exhibition[0]);
+            $reaction->setReaction($jsonData['reaction']);
+            return $reaction->setVisitor($jsonData['visitorId']);
+        }
     }
 }
