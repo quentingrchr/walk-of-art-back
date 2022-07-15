@@ -68,8 +68,11 @@ class Exhibition implements UserOwnedInterface
     private $dateEnd;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['read:Exhibition:item'])] //,'write:Exhibition'])] // INFO:: True obligatoire
     private $reaction;
+
+    #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: Reaction::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true)]
+    private $reactions;
 
     #[ORM\Column(type: 'boolean')]
     #[Groups(['read:Exhibition:item','write:Exhibition'])]
@@ -230,6 +233,23 @@ class Exhibition implements UserOwnedInterface
     public function setReaction(bool $reaction): self
     {
         $this->reaction = $reaction;
+
+        return $this;
+    }
+
+    public function getReactions()
+    {
+        return $this->reactions;
+    }
+
+    public function removeReactions(Reaction $reaction): self
+    {
+        if ($this->reaction->removeElement($reaction)) {
+            // set the owning side to null (unless already changed)
+            if ($reaction->getExhibition() === $this) {
+                $reaction->setExhibition(null);
+            }
+        }
 
         return $this;
     }
