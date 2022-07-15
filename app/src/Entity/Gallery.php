@@ -37,7 +37,9 @@ use App\Config\OrientationEnum;
                                     [
                                         'dateStart'    => ['type' => 'date'],
                                         'dateEnd'      => ['type' => 'date'],
-                                        'orientation'   => OrientationEnum::class,
+                                        'orientation'   => [
+                                            'type' => 'string',
+                                            'enum' => OrientationEnum::class],
                                     ],
                             ],
                             'example' => [

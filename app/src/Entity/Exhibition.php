@@ -5,18 +5,31 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Config\OrientationEnum;
+use App\Config\StatusEnum;
+use App\Controller\Moderator\GetExhibitionToModerateAction;
+use App\Controller\Moderator\PostExhibitionStatusAction;
 use App\Controller\PostExhibitionAction;
 use App\Repository\ExhibitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Uid\Uuid;
-use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExhibitionRepository::class)]
 #[ApiResource(
     collectionOperations: [
         'get' => [
+            'normalization_context' => ['groups' => [
+                'read:Exhibition:collection','read:Work:collection',
+                'read:User'
+            ]],
+        ],
+        'get_moderation' => [
+            'method' => 'GET',
+            'path' => '/moderation/exhibitions',
+            "security" => "is_granted('ROLE_MODERATOR')",
+            'controller' => GetExhibitionToModerateAction::class,
             'normalization_context' => ['groups' => [
                 'read:Exhibition:collection','read:Work:collection',
                 'read:User'
@@ -32,6 +45,37 @@ use Doctrine\ORM\Mapping as ORM;
                 'read:Exhibition:collection','read:Exhibition:item','read:Work:collection',
                 'read:Board','read:Gallery:collection','read:User'
             ]]
+        ],
+        'post_moderation' => [
+            'method' => 'post',
+            'path' => '/moderation/exhibitions/{id}',
+            "security" => "is_granted('ROLE_MODERATOR')",
+            'controller' => PostExhibitionStatusAction::class,
+            'denormalization_context' => ['groups' => ['write:ExhibitionStatus:modo']],
+            'openapi_context' => [
+                'summary' => '[Only moderator] Post a moderation',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => [
+                                        'type' => 'string',
+                                        'enum' => StatusEnum::class
+                                    ],
+                                    'reason' => [
+                                        'type' => 'string',
+                                    ],
+                                    'description' => [
+                                        'type' => 'string',
+                                    ],
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         ],
         'put',
         'delete'
@@ -90,7 +134,7 @@ class Exhibition implements UserOwnedInterface
     private $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'exhibition', targetEntity: ExhibitionStatus::class, cascade: ['persist'], orphanRemoval: true)]
-    #[Groups(['read:Exhibition:item'])]
+    #[Groups(['read:Exhibition:item','write:ExhibitionStatus:modo'])]
     private $statutes;
 
     #[ORM\ManyToOne(targetEntity: Work::class, inversedBy: 'exhibitions')]
@@ -157,7 +201,6 @@ class Exhibition implements UserOwnedInterface
         $this->statutes = new ArrayCollection();
         $this->setReaction(true);
         $this->setCreatedAt(new \DateTime('now'));
-//        $this->addExhibitionStatut((new ExhibitionStatut())->setStatus(StatusEnum::PENDING)->setDescription('Creation of the exhibition')->setExhibition($this));
     }
 
     public function getId(): ?Uuid
@@ -298,11 +341,11 @@ class Exhibition implements UserOwnedInterface
         return $this->statutes;
     }
 
-    public function addExhibitionStatut(ExhibitionStatus $exhibitionStatut): self
+    public function addExhibitionStatus(ExhibitionStatus $exhibitionStatus): self
     {
-        if (!$this->statutes->contains($exhibitionStatut)) {
-            $this->statutes[] = $exhibitionStatut;
-            $exhibitionStatut->setExhibition($this);
+        if (!$this->statutes->contains($exhibitionStatus)) {
+            $this->statutes[] = $exhibitionStatus;
+            $exhibitionStatus->setExhibition($this);
         }
 
         return $this;

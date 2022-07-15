@@ -30,7 +30,7 @@ class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryIt
         if ($reflectionClass->implementsInterface(UserOwnedInterface::class)) {
             $alias = $queryBuilder->getRootAliases()[0];
             $user = $this->security->getUser();
-            if ($user){
+            if ($user && !$this->security->isGranted('ROLE_MODERATOR')){
                 $queryBuilder
                     ->andWhere("$alias.user = :current_user")
                     ->setParameter('current_user', $this->security->getUser()->getId());
