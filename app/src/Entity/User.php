@@ -17,6 +17,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ApiResource(
     collectionOperations: [],
     itemOperations: ['get'],
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')"],
     normalizationContext: ['groups' => ['read:User']],
 )]
 #[ORM\Table(name: '`user`')]
