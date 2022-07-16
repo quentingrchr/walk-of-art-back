@@ -115,7 +115,7 @@ class Work implements UserOwnedInterface
     private $mainFile;
 
     #[ORM\OneToMany(mappedBy: 'work', targetEntity: WorkFiles::class, orphanRemoval: true)]
-    #[Groups(['read:Work:item'])]
+    #[Groups(['read:Work:item', 'read:Work:collection', 'read:Exhibition:child'])]
 //    #[MaxDeptch(1)]
     private $workFiles;
 

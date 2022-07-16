@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Config\OrientationEnum;
 use App\Config\StatusEnum;
+use App\Controller\GetExhibitionByBoardId;
 use App\Controller\Moderator\GetExhibitionToModerateAction;
 use App\Controller\Moderator\PostExhibitionStatusAction;
 use App\Controller\PostExhibitionAction;
@@ -45,6 +46,19 @@ use Symfony\Component\Uid\Uuid;
                 'read:Exhibition:collection','read:Exhibition:item','read:Work:collection',
                 'read:Board','read:Gallery:collection','read:User'
             ]]
+        ],
+        'get_exhibition_by_boardId' => [
+            'method' => 'GET',
+            'path' => '/exhibition/{boardId}',
+            'deserialize' => false,
+            "read" => false,
+            'controller' => GetExhibitionByBoardId::class,
+            'openapi_context' => [
+                'summary' => 'Get exhibition by board id',
+            ],
+            'normalization_context' => [
+                'groups' => ['read:Exhibition:collection','read:Exhibition:child', 'read:Work:Collection'],
+            ],
         ],
         'post_moderation' => [
             'method' => 'post',
