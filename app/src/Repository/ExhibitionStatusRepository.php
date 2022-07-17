@@ -2,30 +2,30 @@
 
 namespace App\Repository;
 
-use App\Entity\ExhibitionStatut;
+use App\Entity\ExhibitionStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method ExhibitionStatut|null find($id, $lockMode = null, $lockVersion = null)
- * @method ExhibitionStatut|null findOneBy(array $criteria, array $orderBy = null)
- * @method ExhibitionStatut[]    findAll()
- * @method ExhibitionStatut[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ExhibitionStatus|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ExhibitionStatus|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ExhibitionStatus[]    findAll()
+ * @method ExhibitionStatus[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ExhibitionStatutRepository extends ServiceEntityRepository
+class ExhibitionStatusRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ExhibitionStatut::class);
+        parent::__construct($registry, ExhibitionStatus::class);
     }
 
     /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function add(ExhibitionStatut $entity, bool $flush = true): void
+    public function add(ExhibitionStatus $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
         if ($flush) {
@@ -37,7 +37,7 @@ class ExhibitionStatutRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function remove(ExhibitionStatut $entity, bool $flush = true): void
+    public function remove(ExhibitionStatus $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
         if ($flush) {
@@ -46,7 +46,7 @@ class ExhibitionStatutRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return ExhibitionStatut[] Returns an array of ExhibitionStatut objects
+    //  * @return ExhibitionStatus[] Returns an array of ExhibitionStatus objects
     //  */
     /*
     public function findByExampleField($value)
@@ -63,7 +63,7 @@ class ExhibitionStatutRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?ExhibitionStatut
+    public function findOneBySomeField($value): ?ExhibitionStatus
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.exampleField = :val')

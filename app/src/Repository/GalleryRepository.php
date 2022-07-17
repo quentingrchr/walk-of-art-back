@@ -3,7 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Gallery;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Exception;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,32 +22,31 @@ class GalleryRepository extends ServiceEntityRepository
         parent::__construct($registry, Gallery::class);
     }
 
-    // /**
-    //  * @return Gallery[] Returns an array of Gallery objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findAvailableGalleriesByParams($params)
     {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('g.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $dateStartDiff = new DateTime($params['dateStart']);
+        $dateEndDiff = new DateTime($params['dateEnd']);
 
-    /*
-    public function findOneBySomeField($value): ?Gallery
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $query = $this->_em->createQuery('
+                SELECT g
+                FROM App\Entity\Gallery g
+                LEFT JOIN App\Entity\Board b WITH b.gallery = g.id
+                LEFT JOIN App\Entity\Exhibition e WITH e.board = b.id
+                WHERE b.orientation = :orientation 
+                AND g.maxDays >= :dateDiff
+                AND b.id NOT IN (
+                            SELECT IDENTITY(ee.board)
+                            FROM App\Entity\Exhibition ee
+                            WHERE e.dateStart < :dateEnd OR e.dateEnd > :dateStart
+                ) 
+            ')
+            ->setParameters([
+                'dateStart' => $params['dateStart'],
+                'dateEnd' => $params['dateEnd'],
+                'dateDiff' => intval($dateStartDiff->diff($dateEndDiff)->format("%a")),
+                'orientation' => $params['orientation'],
+            ]);
+
+        return $query->getResult();
     }
-    */
 }
