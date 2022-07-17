@@ -35,7 +35,6 @@ class Board
     private $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Gallery::class, inversedBy: 'boards')]
-    #[Groups(['read:Board','write:Board'])]
     private $gallery;
 
     #[ORM\Column(type: 'string', enumType: OrientationEnum::class)]
@@ -52,14 +51,14 @@ class Board
         return $this->id;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->created_at;
     }
 
     public function setCreatedAt(\DateTime $createdAt): self
     {
-        $this->createdAt = $createdAt;
+        $this->created_at = $created_at;
 
         return $this;
     }
