@@ -16,7 +16,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ORM\Entity(repositoryClass: WorkFilesRepository::class)]
 #[ApiResource(
     collectionOperations: [],
-    itemOperations: ['get']
+    itemOperations: ['get'],
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')"],
 )]
 class WorkFiles
 {

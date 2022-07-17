@@ -80,6 +80,7 @@ use Symfony\Component\Uid\Uuid;
         'put',
         'delete'
     ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')"],
     denormalizationContext: ['groups' => ['write:Exhibition']],
     normalizationContext: ['groups' => [
         'read:Exhibition:collection',

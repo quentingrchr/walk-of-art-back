@@ -62,6 +62,7 @@ use App\Config\OrientationEnum;
             ],
         ],
     ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')"],
     normalizationContext: ['groups' => ['read:Gallery:collection']],
 )]
 class Gallery

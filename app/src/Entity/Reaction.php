@@ -84,6 +84,7 @@ use Symfony\Component\Uid\Uuid;
             ],
         ],
     ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_VISITOR')"],
     denormalizationContext: ['groups' => ['write:Reaction']],
     normalizationContext: ['groups' => ['read:Reaction:collection']],
 )]

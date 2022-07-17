@@ -18,9 +18,9 @@ use Doctrine\ORM\Mapping as ORM;
     itemOperations: [
         'get'
     ],
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')"],
     denormalizationContext: ['groups' => ['write:Board']],
     normalizationContext: ['groups' => ['read:Board','read:Gallery:collection']],
-
 )]
 class Board
 {

@@ -76,7 +76,7 @@ use Doctrine\ORM\Mapping as ORM;
         ],
         'delete'
     ],
-
+    attributes: ["security" => "is_granted('ROLE_ARTIST') or is_granted('ROLE_MODERATOR')"],
     denormalizationContext: ['groups' => ['write:Work']],
     normalizationContext: ['groups' => ['read:Work:collection']],
 )]
