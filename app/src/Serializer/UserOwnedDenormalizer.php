@@ -22,7 +22,7 @@ class UserOwnedDenormalizer implements ContextAwareDenormalizerInterface, Denorm
     {
         $reflectionClass = new \ReflectionClass($type);
         $alreadyCalled = $context[$this->getAlreadyCalledKey($type)] ?? false;
-        return $reflectionClass->implementsInterface(UserOwnedInterface::class) && $alreadyCalled === false;
+        return $reflectionClass->implementsInterface(UserOwnedInterface::class) && $alreadyCalled === false && $context['item_operation_name'] == 'post';
     }
 
     public function denormalize(mixed $data, string $type, string $format = null, array $context = [])
