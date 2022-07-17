@@ -21,8 +21,7 @@ use Symfony\Component\Uid\Uuid;
     collectionOperations: [
         'get' => [
             'normalization_context' => ['groups' => [
-                'read:Exhibition:collection','read:Work:collection',
-                'read:User'
+                'read:Exhibition:collection','read:Work:collection'
             ]],
         ],
         'get_moderation' => [
@@ -75,7 +74,11 @@ use Symfony\Component\Uid\Uuid;
                         ]
                     ]
                 ]
-            ]
+            ],
+            'normalization_context' => ['groups' => [
+                'read:Exhibition:collection','read:Work:collection',
+                'read:User'
+            ]],
         ],
         'put',
         'delete'
@@ -127,6 +130,7 @@ class Exhibition implements UserOwnedInterface
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read:Exhibition:collection'])]
     private $user;
 
     #[ORM\Column(type: 'datetime')]

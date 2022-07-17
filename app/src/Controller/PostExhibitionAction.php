@@ -40,7 +40,7 @@ class PostExhibitionAction
 
         $exhibition->setBoard($board);
 
-        $exhibition->addExhibitionStatut(
+        $exhibition->addExhibitionStatus(
             (new ExhibitionStatus())
             ->setStatus(StatusEnum::PENDING)
             ->setUser($this->userRepository->find($this->security->getUser()->getId())) // TODO: Enlevé l'appel a la db
