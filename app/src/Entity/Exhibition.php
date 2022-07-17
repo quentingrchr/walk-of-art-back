@@ -57,7 +57,7 @@ use Symfony\Component\Uid\Uuid;
                 'summary' => 'Get exhibition by board id',
             ],
             'normalization_context' => [
-                'groups' => ['read:Exhibition:collection','read:Exhibition:child', 'read:Work:Collection'],
+                'groups' => ['read:Exhibition:collection','read:Exhibition:child', 'read:Work:Collection','read:User', 'read:User:child'],
             ],
         ],
         'post_moderation' => [
@@ -114,7 +114,7 @@ class Exhibition implements UserOwnedInterface
     private $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['read:Exhibition:item','write:Exhibition'])]
+    #[Groups(['read:Exhibition:item','write:Exhibition', 'read:Exhibition:child'])]
     private $description;
 
     #[ORM\Column(type: 'date')]
@@ -141,6 +141,7 @@ class Exhibition implements UserOwnedInterface
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read:Exhibition:child'])]
     private $user;
 
     #[ORM\Column(type: 'datetime')]
