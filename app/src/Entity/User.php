@@ -48,12 +48,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     private $lastname;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User:child'])]
     private $urlFacebook;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User:child'])]
     private $urlInstagram;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User:child'])]
     private $urlPersonalWebsite;
 
     #[ORM\Column(type: 'datetime')]
